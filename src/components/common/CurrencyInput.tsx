@@ -11,6 +11,7 @@ interface CurrencyInputProps {
   disabled?: boolean
   required?: boolean
   className?: string
+  readOnly?: boolean
 }
 
 const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
@@ -23,6 +24,7 @@ const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
       placeholder = '0',
       disabled,
       required,
+      readOnly,
       className,
     },
     ref
@@ -56,6 +58,7 @@ const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
             onChange={handleChange}
             placeholder={placeholder}
             disabled={disabled}
+            readOnly={readOnly}
             className={cn(
               'w-full pl-12 pr-4 py-3 rounded-xl border transition-colors duration-200 outline-none text-right font-semibold text-lg',
               'focus:ring-2 focus:ring-primary-100',
