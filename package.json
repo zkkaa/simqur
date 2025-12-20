@@ -16,6 +16,7 @@
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
     "@neondatabase/serverless": "^1.0.2",
+    "@phosphor-icons/react": "^2.1.10",
     "@tanstack/react-query": "^5.90.12",
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.0",
@@ -24,6 +25,7 @@
     "dotenv": "^16.4.0",
     "drizzle-orm": "^0.45.1",
     "framer-motion": "^11.1.0",
+    "gsap": "^3.14.2",
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.8.2",
     "lucide-react": "^0.468.0",
