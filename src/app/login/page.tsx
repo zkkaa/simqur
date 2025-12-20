@@ -244,28 +244,10 @@ export default function LoginPage() {
             className="pt-4 border-t border-gray-100"
           >
             <p className="text-xs text-center text-gray-500">
-              Lupa password? Hubungi administrator RT
+              Lupa password? Hubungi administrator
             </p>
           </motion.div>
         </div>
-
-        {/* Demo Credentials */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.2 }}
-          className="mt-6"
-        >
-          <InfoCard variant="info" title="🔐 Demo Login:">
-            <div className="space-y-1 font-mono text-xs">
-              <p>Email: admin@tabunganqurban.com</p>
-              <p>Password: admin123</p>
-            </div>
-            <p className="text-xs mt-2">
-              ⚠️ Ganti password setelah login pertama!
-            </p>
-          </InfoCard>
-        </motion.div>
 
         {/* Version */}
         <motion.p
