@@ -1,5 +1,7 @@
-import { Cow } from '@phosphor-icons/react'
+"use client"
+// import { Cow } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils/cn'
+import Image from 'next/image'
 
 interface LogoProps {
   size?: 'sm' | 'md' | 'lg'
@@ -36,7 +38,8 @@ export default function Logo({ size = 'md', showText = true, className }: LogoPr
           config.container
         )}
       >
-        <Cow weight="fill" className={cn('text-white', config.icon)} />
+        {/* <Cow weight="fill" className={cn('text-white', config.icon)} /> */}
+        <Image src="/logo.png" alt="logo" width={40} height={40} priority />
       </div>
       {showText && (
         <div className="text-center">
