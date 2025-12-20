@@ -10,7 +10,7 @@ import { motion } from 'framer-motion'
 import gsap from 'gsap'
 import Button from '@/components/common/Button'
 import Input from '@/components/common/Input'
-import Toast from '../../components/common/Toast'
+import Toast from '@/components/common/Toast'
 import InfoCard from '@/components/common/InfoCard'
 import Logo from '@/components/common/Logo'
 import { SignIn, Eye, EyeSlash, Key, LockKey } from '@phosphor-icons/react'
@@ -152,7 +152,8 @@ export default function LoginPage() {
         duration={3000}
       />
 
-      <div className="w-full max-w-md relative z-10">
+      {/* Mobile-First Container: max-w-sm (384px) */}
+      <div className="w-full max-w-sm relative z-10">
         {/* Card */}
         <div ref={cardRef} className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 space-y-6 border border-white/20">
           {/* Logo */}
