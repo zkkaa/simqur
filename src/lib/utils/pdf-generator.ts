@@ -1,0 +1,158 @@
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
+import { formatCurrency, formatDate } from './format'
+
+export function generateLaporanKeseluruhanPDF(data: any[], total: number, period: string) {
+  const doc = new jsPDF()
+
+  // Header
+  doc.setFontSize(18)
+  doc.text('SIMQUR', 14, 15)
+  doc.setFontSize(10)
+  doc.text('Desa Sambong Sawah', 14, 22)
+
+  doc.setFontSize(14)
+  doc.text('Laporan Transaksi Keseluruhan', 14, 35)
+  doc.setFontSize(10)
+  doc.text(`Periode: ${period}`, 14, 42)
+
+  // Table
+  autoTable(doc, {
+    startY: 50,
+    head: [['No', 'Tanggal', 'Penabung', 'Petugas', 'Nominal', 'Metode']],
+    body: data.map((item, index) => [
+      index + 1,
+      formatDate(new Date(item.tanggal), 'dd/MM/yyyy'),
+      item.penabung.nama,
+      item.petugas.nama,
+      formatCurrency(parseFloat(item.nominal)),
+      item.metodeBayar === 'tunai' ? 'Tunai' : 'Transfer',
+    ]),
+    foot: [['', '', '', '', formatCurrency(total), '']],
+    styles: { fontSize: 8 },
+    headStyles: { fillColor: [22, 163, 74] },
+    footStyles: { fillColor: [240, 240, 240], fontStyle: 'bold' },
+  })
+
+  // Footer
+  const pageCount = (doc as any).internal.getNumberOfPages()
+  doc.setFontSize(8)
+  doc.text(
+    `Dicetak: ${formatDate(new Date(), 'dd MMMM yyyy HH:mm')}`,
+    14,
+    doc.internal.pageSize.height - 10
+  )
+  doc.text(
+    `Halaman ${pageCount}`,
+    doc.internal.pageSize.width - 30,
+    doc.internal.pageSize.height - 10
+  )
+
+  return doc
+}
+
+export function generateLaporanPerWargaPDF(
+  data: any[],
+  total: number,
+  penabung: any,
+  period: string
+) {
+  const doc = new jsPDF()
+
+  // Header
+  doc.setFontSize(18)
+  doc.text('SIMQUR', 14, 15)
+  doc.setFontSize(10)
+  doc.text('Desa Sambong Sawah', 14, 22)
+
+  doc.setFontSize(14)
+  doc.text('Laporan Transaksi Per Warga', 14, 35)
+  doc.setFontSize(10)
+  doc.text(`Nama: ${penabung.nama}`, 14, 42)
+  doc.text(`Periode: ${period}`, 14, 48)
+  doc.text(`Saldo Total: ${formatCurrency(parseFloat(penabung.totalSaldo))}`, 14, 54)
+
+  // Table
+  autoTable(doc, {
+    startY: 62,
+    head: [['No', 'Tanggal', 'Petugas', 'Nominal', 'Metode']],
+    body: data.map((item, index) => [
+      index + 1,
+      formatDate(new Date(item.tanggal), 'dd/MM/yyyy'),
+      item.petugas.nama,
+      formatCurrency(parseFloat(item.nominal)),
+      item.metodeBayar === 'tunai' ? 'Tunai' : 'Transfer',
+    ]),
+    foot: [['', '', '', formatCurrency(total), '']],
+    styles: { fontSize: 9 },
+    headStyles: { fillColor: [22, 163, 74] },
+    footStyles: { fillColor: [240, 240, 240], fontStyle: 'bold' },
+  })
+
+  // Footer
+  const pageCount = (doc as any).internal.getNumberOfPages()
+  doc.setFontSize(8)
+  doc.text(
+    `Dicetak: ${formatDate(new Date(), 'dd MMMM yyyy HH:mm')}`,
+    14,
+    doc.internal.pageSize.height - 10
+  )
+  doc.text(
+    `Halaman ${pageCount}`,
+    doc.internal.pageSize.width - 30,
+    doc.internal.pageSize.height - 10
+  )
+
+  return doc
+}
+
+export function generateLaporanKeuanganPDF(
+  data: any[],
+  grandTotal: number,
+  period: string
+) {
+  const doc = new jsPDF()
+
+  // Header
+  doc.setFontSize(18)
+  doc.text('SIMQUR', 14, 15)
+  doc.setFontSize(10)
+  doc.text('Desa Sambong Sawah', 14, 22)
+
+  doc.setFontSize(14)
+  doc.text('Laporan Keuangan', 14, 35)
+  doc.setFontSize(10)
+  doc.text(`Periode: ${period}`, 14, 42)
+
+  // Table
+  autoTable(doc, {
+    startY: 50,
+    head: [['No', 'Tanggal', 'Jumlah Transaksi', 'Total Nominal']],
+    body: data.map((item, index) => [
+      index + 1,
+      formatDate(new Date(item.tanggal), 'dd/MM/yyyy'),
+      item.jumlahTransaksi,
+      formatCurrency(parseFloat(item.totalNominal)),
+    ]),
+    foot: [['', '', '', formatCurrency(grandTotal)]],
+    styles: { fontSize: 9 },
+    headStyles: { fillColor: [22, 163, 74] },
+    footStyles: { fillColor: [240, 240, 240], fontStyle: 'bold' },
+  })
+
+  // Footer
+  const pageCount = (doc as any).internal.getNumberOfPages()
+  doc.setFontSize(8)
+  doc.text(
+    `Dicetak: ${formatDate(new Date(), 'dd MMMM yyyy HH:mm')}`,
+    14,
+    doc.internal.pageSize.height - 10
+  )
+  doc.text(
+    `Halaman ${pageCount}`,
+    doc.internal.pageSize.width - 30,
+    doc.internal.pageSize.height - 10
+  )
+
+  return doc
+}
