@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
-import { authOptions, hashPassword } from '@/lib/auth/config'
-import { db, users, transaksi } from '@/lib/db'
-import { eq, sql, and, isNull } from 'drizzle-orm'
+import { authOptions } from '@/lib/auth/config'
+import { hashPassword } from '@/lib/auth/helpers'
+import { db, users } from '@/lib/db'
+import { eq } from 'drizzle-orm'
 import { logActivity, getClientIp } from '@/lib/utils/activity-logger'
 
-// GET - Fetch all petugas with stats
+// GET - Fetch all petugas (Admin only)
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -13,30 +14,25 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Only admin can access
+    // Admin only
     if (session.user.role !== 'admin') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    // Fetch petugas with their transaction stats
-    const petugasList = await db
+    const result = await db
       .select({
         id: users.id,
         email: users.email,
         namaLengkap: users.namaLengkap,
         noTelp: users.noTelp,
+        role: users.role,
         isActive: users.isActive,
         createdAt: users.createdAt,
-        totalTransaksi: sql<number>`count(${transaksi.id})`,
-        totalNominal: sql<string>`coalesce(sum(${transaksi.nominal}), 0)`,
       })
       .from(users)
-      .leftJoin(transaksi, eq(users.id, transaksi.petugasId))
-      .where(eq(users.role, 'petugas'))
-      .groupBy(users.id)
-      .orderBy(users.createdAt)
+      .orderBy(users.namaLengkap)
 
-    return NextResponse.json(petugasList)
+    return NextResponse.json(result)
   } catch (error) {
     console.error('Error fetching petugas:', error)
     return NextResponse.json(
@@ -46,7 +42,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST - Create new petugas
+// POST - Create new petugas (Admin only)
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -54,32 +50,43 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Only admin can create
+    // Admin only
     if (session.user.role !== 'admin') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     const body = await request.json()
-    const { namaLengkap, email, password, noTelp } = body
+    const { email, password, namaLengkap, noTelp, role } = body
 
     // Validation
-    if (!namaLengkap || !email || !password) {
+    if (!email || !password || !namaLengkap || !role) {
       return NextResponse.json(
-        { error: 'Nama, email, dan password harus diisi' },
+        { error: 'Semua field harus diisi' },
         { status: 400 }
       )
     }
 
-    // Check duplicate email
-    const existing = await db
+    if (password.length < 6) {
+      return NextResponse.json(
+        { error: 'Password minimal 6 karakter' },
+        { status: 400 }
+      )
+    }
+
+    if (!['admin', 'petugas'].includes(role)) {
+      return NextResponse.json({ error: 'Role tidak valid' }, { status: 400 })
+    }
+
+    // Check if email already exists
+    const [existingUser] = await db
       .select()
       .from(users)
       .where(eq(users.email, email))
       .limit(1)
 
-    if (existing.length > 0) {
+    if (existingUser) {
       return NextResponse.json(
-        { error: 'Email sudah digunakan' },
+        { error: 'Email sudah terdaftar' },
         { status: 400 }
       )
     }
@@ -87,14 +94,15 @@ export async function POST(request: NextRequest) {
     // Hash password
     const hashedPassword = await hashPassword(password)
 
-    const [newPetugas] = await db
+    // Create user
+    const [newUser] = await db
       .insert(users)
       .values({
         email,
         password: hashedPassword,
         namaLengkap,
-        role: 'petugas',
         noTelp: noTelp || null,
+        role,
         isActive: true,
         createdBy: session.user.id,
       })
@@ -106,14 +114,21 @@ export async function POST(request: NextRequest) {
       userRole: session.user.role,
       action: 'create',
       tableName: 'users',
-      recordId: newPetugas.id,
-      description: `Menambahkan petugas baru: ${newPetugas.namaLengkap} (${newPetugas.email})`,
-      newData: { ...newPetugas, password: '[HIDDEN]' },
+      recordId: newUser.id,
+      description: `Tambah petugas: ${namaLengkap} (${email})`,
+      newData: { email, namaLengkap, role },
       ipAddress: getClientIp(request),
     })
 
     return NextResponse.json(
-      { ...newPetugas, password: undefined },
+      {
+        id: newUser.id,
+        email: newUser.email,
+        namaLengkap: newUser.namaLengkap,
+        noTelp: newUser.noTelp,
+        role: newUser.role,
+        isActive: newUser.isActive,
+      },
       { status: 201 }
     )
   } catch (error) {
