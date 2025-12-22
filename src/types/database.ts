@@ -45,7 +45,17 @@ export type PenabungWithTransaksi = Penabung & {
   transaksi: Transaksi[]
 }
 
-export type UserWithStats = User & {
+// ✅ FIX: Ubah UserWithStats menjadi lebih fleksibel
+export type UserWithStats = {
+  id: string
+  email: string
+  namaLengkap: string
+  noTelp: string | null
+  isActive: boolean
+  createdAt: Date
   totalTransaksi?: number
   totalNominal?: string
 }
+
+// ✅ NEW: Type khusus untuk Petugas dengan Stats (hasil dari API)
+export type PetugasWithStats = UserWithStats

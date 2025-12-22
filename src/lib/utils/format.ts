@@ -15,6 +15,24 @@ export function formatCurrency(amount: number): string {
 }
 
 /**
+ * Format currency to short format (e.g., "Rp 1,5jt", "Rp 2,3M", "Rp 500rb")
+ */
+export function formatCurrencyShort(amount: number): string {
+  if (amount >= 1000000000) {
+    // Milyar
+    return `Rp ${(amount / 1000000000).toFixed(1)}M`
+  } else if (amount >= 1000000) {
+    // Juta
+    return `Rp ${(amount / 1000000).toFixed(1)}jt`
+  } else if (amount >= 1000) {
+    // Ribu
+    return `Rp ${(amount / 1000).toFixed(0)}rb`
+  } else {
+    return `Rp ${amount}`
+  }
+}
+
+/**
  * Format date with Indonesia timezone
  * @param date - Date object or string
  * @param formatStr - Format string (e.g., 'dd MMM yyyy', 'dd/MM/yyyy')

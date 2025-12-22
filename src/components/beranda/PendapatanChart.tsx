@@ -58,12 +58,17 @@ export default function PendapatanChart({
     count: item.count,
   }))
 
-  // Calculate total
+  // ✅ FIX: Calculate total dengan benar
   const totalPendapatan = data.reduce(
-    (sum, item) => sum + parseFloat(item.total),
+    (sum, item) => sum + parseFloat(item.total || '0'),
     0
   )
-  const totalTransaksi = data.reduce((sum, item) => sum + item.count, 0)
+  
+  // ✅ FIX: Total transaksi harus dijumlahkan dari count, bukan data.length
+  const totalTransaksi = data.reduce(
+    (sum, item) => sum + Number(item.count || 0), 
+    0
+  )
 
   return (
     <motion.div

@@ -2,11 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth/config'
 import { hashPassword } from '@/lib/auth/helpers'
-import { db, users } from '@/lib/db'
-import { eq } from 'drizzle-orm'
+import { db, users, transaksi } from '@/lib/db'
+import { eq, sql } from 'drizzle-orm'
 import { logActivity, getClientIp } from '@/lib/utils/activity-logger'
 
-// GET - Fetch all petugas (Admin only)
+// GET - Fetch all petugas with stats (Admin only)
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -19,7 +19,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const result = await db
+    // Get all users
+    const allUsers = await db
       .select({
         id: users.id,
         email: users.email,
@@ -32,7 +33,26 @@ export async function GET(request: NextRequest) {
       .from(users)
       .orderBy(users.namaLengkap)
 
-    return NextResponse.json(result)
+    // Get stats for each user
+    const usersWithStats = await Promise.all(
+      allUsers.map(async (user) => {
+        const [stats] = await db
+          .select({
+            totalTransaksi: sql<number>`cast(count(*) as integer)`,
+            totalNominal: sql<string>`coalesce(cast(sum(cast(${transaksi.nominal} as decimal)) as text), '0')`,
+          })
+          .from(transaksi)
+          .where(eq(transaksi.petugasId, user.id))
+
+        return {
+          ...user,
+          totalTransaksi: stats?.totalTransaksi || 0,
+          totalNominal: stats?.totalNominal || '0',
+        }
+      })
+    )
+
+    return NextResponse.json(usersWithStats)
   } catch (error) {
     console.error('Error fetching petugas:', error)
     return NextResponse.json(
@@ -128,6 +148,8 @@ export async function POST(request: NextRequest) {
         noTelp: newUser.noTelp,
         role: newUser.role,
         isActive: newUser.isActive,
+        totalTransaksi: 0,
+        totalNominal: '0',
       },
       { status: 201 }
     )
