@@ -41,9 +41,7 @@ export default function LaporanTypeCard({
       {/* Admin Badge */}
       {adminOnly && (
         <div className="absolute top-2 right-2">
-          <span className="text-xs px-2 py-0.5 bg-warning/10 text-warning rounded-full font-medium">
-            Admin
-          </span>
+          
         </div>
       )}
 

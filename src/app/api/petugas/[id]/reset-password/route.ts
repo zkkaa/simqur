@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
-import { authOptions, hashPassword } from '@/lib/auth/config'
+import { authOptions } from '@/lib/auth/config'
+import { hashPassword } from '@/lib/auth/helpers'
 import { db, users } from '@/lib/db'
 import { eq } from 'drizzle-orm'
 import { logActivity, getClientIp } from '@/lib/utils/activity-logger'
@@ -37,7 +38,7 @@ export async function POST(
       .where(eq(users.id, params.id))
       .limit(1)
 
-    if (!petugas || petugas.role !== 'petugas') {
+    if (!petugas) {
       return NextResponse.json({ error: 'Petugas not found' }, { status: 404 })
     }
 

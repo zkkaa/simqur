@@ -63,7 +63,7 @@ export default function BerandaPage() {
               <div>
                 <h1 className="text-white text-2xl font-bold">Beranda</h1>
                 <p className="text-primary-100 text-sm">
-                  Selamat datang, {user?.namaLengkap}
+                  Selamat datang {user?.namaLengkap}
                 </p>
               </div>
             </div>
@@ -123,36 +123,6 @@ export default function BerandaPage() {
                   delay={0.25}
                 />
               </div>
-
-              {/* Quick Actions */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="grid grid-cols-2 gap-3"
-              >
-                <Button
-                  variant="primary"
-                  fullWidth
-                  onClick={() => router.push('/transaksi')}
-                  leftIcon={
-                    <CurrencyCircleDollar
-                      weight="bold"
-                      className="w-5 h-5"
-                    />
-                  }
-                >
-                  Input Transaksi
-                </Button>
-                <Button
-                  variant="secondary"
-                  fullWidth
-                  onClick={() => router.push('/laporan')}
-                  leftIcon={<FileText weight="bold" className="w-5 h-5" />}
-                >
-                  Lihat Laporan
-                </Button>
-              </motion.div>
 
               {/* Pendapatan Chart */}
               <PendapatanChart

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
-import { authOptions, hashPassword } from '@/lib/auth/config'
+import { authOptions } from '@/lib/auth/config'
 import { db, users } from '@/lib/db'
 import { eq } from 'drizzle-orm'
 import { logActivity, getClientIp } from '@/lib/utils/activity-logger'
@@ -26,7 +26,7 @@ export async function GET(
       .where(eq(users.id, params.id))
       .limit(1)
 
-    if (!petugas || petugas.role !== 'petugas') {
+    if (!petugas) {
       return NextResponse.json({ error: 'Petugas not found' }, { status: 404 })
     }
 
@@ -65,19 +65,19 @@ export async function PATCH(
       .where(eq(users.id, params.id))
       .limit(1)
 
-    if (!oldData || oldData.role !== 'petugas') {
+    if (!oldData) {
       return NextResponse.json({ error: 'Petugas not found' }, { status: 404 })
     }
 
     // Check duplicate email (exclude current)
     if (email && email !== oldData.email) {
-      const existing = await db
+      const [existing] = await db
         .select()
         .from(users)
         .where(eq(users.email, email))
         .limit(1)
 
-      if (existing.length > 0) {
+      if (existing) {
         return NextResponse.json(
           { error: 'Email sudah digunakan' },
           { status: 400 }
@@ -85,15 +85,19 @@ export async function PATCH(
       }
     }
 
+    // Build update data
+    const updateData: any = {
+      updatedAt: new Date(),
+    }
+
+    if (namaLengkap !== undefined) updateData.namaLengkap = namaLengkap
+    if (email !== undefined) updateData.email = email
+    if (noTelp !== undefined) updateData.noTelp = noTelp
+    if (isActive !== undefined) updateData.isActive = isActive
+
     const [updated] = await db
       .update(users)
-      .set({
-        namaLengkap: namaLengkap || oldData.namaLengkap,
-        email: email || oldData.email,
-        noTelp: noTelp !== undefined ? noTelp : oldData.noTelp,
-        isActive: isActive !== undefined ? isActive : oldData.isActive,
-        updatedAt: new Date(),
-      })
+      .set(updateData)
       .where(eq(users.id, params.id))
       .returning()
 
@@ -120,7 +124,7 @@ export async function PATCH(
   }
 }
 
-// DELETE - Deactivate petugas (soft delete)
+// DELETE - Toggle active status
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -142,18 +146,21 @@ export async function DELETE(
       .where(eq(users.id, params.id))
       .limit(1)
 
-    if (!petugas || petugas.role !== 'petugas') {
+    if (!petugas) {
       return NextResponse.json({ error: 'Petugas not found' }, { status: 404 })
     }
 
-    // Deactivate
-    await db
+    // Toggle active status
+    const newStatus = !petugas.isActive
+
+    const [updated] = await db
       .update(users)
       .set({
-        isActive: false,
+        isActive: newStatus,
         updatedAt: new Date(),
       })
       .where(eq(users.id, params.id))
+      .returning()
 
     // Log activity
     await logActivity({
@@ -162,16 +169,17 @@ export async function DELETE(
       action: 'update',
       tableName: 'users',
       recordId: params.id,
-      description: `Menonaktifkan petugas: ${petugas.namaLengkap}`,
-      oldData: { ...petugas, password: '[HIDDEN]' },
+      description: `${newStatus ? 'Mengaktifkan' : 'Menonaktifkan'} petugas: ${petugas.namaLengkap}`,
+      oldData: { isActive: petugas.isActive },
+      newData: { isActive: newStatus },
       ipAddress: getClientIp(request),
     })
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ success: true, isActive: newStatus })
   } catch (error) {
-    console.error('Error deactivating petugas:', error)
+    console.error('Error toggling petugas status:', error)
     return NextResponse.json(
-      { error: 'Failed to deactivate petugas' },
+      { error: 'Failed to toggle petugas status' },
       { status: 500 }
     )
   }
