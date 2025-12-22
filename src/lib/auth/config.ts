@@ -1,21 +1,10 @@
 import { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
-import { compare } from 'bcryptjs'
-import { db } from '@/lib/db'
-import { users } from '@/lib/db/schema'
+import { db, users } from '@/lib/db'
 import { eq } from 'drizzle-orm'
+import bcrypt from 'bcryptjs'
 
 export const authOptions: NextAuthOptions = {
-  session: {
-    strategy: 'jwt',
-    maxAge: 24 * 60 * 60, // 24 hours
-  },
-  
-  pages: {
-    signIn: '/login',
-    error: '/login',
-  },
-
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -23,7 +12,6 @@ export const authOptions: NextAuthOptions = {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
       },
-      
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
           throw new Error('Email dan password harus diisi')
@@ -42,51 +30,52 @@ export const authOptions: NextAuthOptions = {
 
         // Check if user is active
         if (!user.isActive) {
-          throw new Error('Akun Anda sudah dinonaktifkan')
+          throw new Error('Akun Anda telah dinonaktifkan')
         }
 
         // Verify password
-        const isPasswordValid = await compare(credentials.password, user.password)
-        
-        if (!isPasswordValid) {
+        const isValid = await bcrypt.compare(credentials.password, user.password)
+        if (!isValid) {
           throw new Error('Email atau password salah')
         }
 
-        // Return user data (password akan di-exclude otomatis)
         return {
           id: user.id,
           email: user.email,
           name: user.namaLengkap,
           role: user.role,
+          noTelp: user.noTelp,
         }
       },
     }),
   ],
-
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id
+        token.email = user.email
+        token.name = user.name
         token.role = user.role
+        token.noTelp = user.noTelp
       }
       return token
     },
-
     async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id as string
-        session.user.role = token.role as 'admin' | 'petugas'
+      if (token) {
+        session.user.id = token.id
+        session.user.email = token.email
+        session.user.name = token.name
+        session.user.role = token.role
+        session.user.noTelp = token.noTelp
       }
       return session
     },
   },
-
+  pages: {
+    signIn: '/login',
+  },
+  session: {
+    strategy: 'jwt',
+  },
   secret: process.env.NEXTAUTH_SECRET,
-}
-
-// Helper function untuk hash password
-import { hash } from 'bcryptjs'
-
-export async function hashPassword(password: string): Promise<string> {
-  return hash(password, 12)
 }

@@ -167,7 +167,7 @@ export default function TransaksiPage() {
                 <p className="text-primary-100 text-sm">Input setoran</p>
               </div>
             </div>
-            <Logo size="sm" showText={false} />
+            <Logo size="lg" showText={false} />
           </motion.div>
 
           {/* Today's Summary */}

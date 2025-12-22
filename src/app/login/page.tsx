@@ -162,7 +162,7 @@ export default function LoginPage() {
             animate={{ scale: 1 }}
             transition={{ delay: 0.5, type: 'spring', stiffness: 200 }}
           >
-            <Logo size="md" />
+            <Logo size="lg" />
           </motion.div>
 
           <motion.div

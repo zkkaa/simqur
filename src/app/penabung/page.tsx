@@ -162,7 +162,7 @@ export default function PenabungPage() {
                 </p>
               </div>
             </div>
-            <Logo size="sm" showText={false} />
+            <Logo size="lg" showText={false} />
           </motion.div>
 
           {/* Search */}

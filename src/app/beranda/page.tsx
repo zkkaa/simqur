@@ -53,7 +53,7 @@ export default function BerandaPage() {
                 {user?.name}
               </h1>
             </div>
-            <Logo size="sm" showText={false} />
+            <Logo size="lg" showText={false} />
           </motion.div>
 
           {/* Date & Time */}

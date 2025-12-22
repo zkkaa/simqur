@@ -8,7 +8,7 @@ interface LaporanParams {
   petugasId?: string
 }
 
-export function useLaporan(params: LaporanParams) {
+export function useLaporan(params: LaporanParams, enableQuery: boolean) {
   return useQuery({
     queryKey: ['laporan', params],
     queryFn: async () => {

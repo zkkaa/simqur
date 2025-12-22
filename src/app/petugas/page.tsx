@@ -199,7 +199,7 @@ export default function PetugasPage() {
                 </p>
               </div>
             </div>
-            <Logo size="sm" showText={false} />
+            <Logo size="lg" showText={false} />
           </motion.div>
         </div>
 

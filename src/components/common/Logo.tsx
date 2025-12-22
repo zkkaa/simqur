@@ -1,7 +1,7 @@
 "use client"
-// import { Cow } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils/cn'
-import Image from 'next/image'
+import { Cow } from '@phosphor-icons/react'
+import { useState } from 'react'
 
 interface LogoProps {
   size?: 'sm' | 'md' | 'lg'
@@ -12,23 +12,27 @@ interface LogoProps {
 const sizeConfig = {
   sm: {
     container: 'w-10 h-10',
-    icon: 'w-6 h-6',
+    iconClass: 'w-6 h-6',
+    iconSize: 24,
     text: 'text-base',
   },
   md: {
     container: 'w-16 h-16',
-    icon: 'w-10 h-10',
+    iconClass: 'w-10 h-10',
+    iconSize: 40,
     text: 'text-2xl',
   },
   lg: {
     container: 'w-20 h-20',
-    icon: 'w-12 h-12',
+    iconClass: 'w-12 h-12',
+    iconSize: 48,
     text: 'text-3xl',
   },
 }
 
 export default function Logo({ size = 'md', showText = true, className }: LogoProps) {
   const config = sizeConfig[size]
+  const [imageError, setImageError] = useState(false)
 
   return (
     <div className={cn('flex flex-col items-center gap-2', className)}>
@@ -38,8 +42,19 @@ export default function Logo({ size = 'md', showText = true, className }: LogoPr
           config.container
         )}
       >
-        {/* <Cow weight="fill" className={cn('text-white', config.icon)} /> */}
-        <Image src="/logo.png" alt="logo" width={40} height={40} priority />
+        {!imageError ? (
+          <img 
+            src="/logo.png" 
+            alt="SIMQUR Logo" 
+            width={config.iconSize} 
+            height={config.iconSize}
+            className="object-contain"
+            onError={() => setImageError(true)}
+          />
+        ) : (
+          // Fallback ke icon jika gambar gagal load
+          <Cow weight="fill" className={cn('text-white', config.iconClass)} />
+        )}
       </div>
       {showText && (
         <div className="text-center">
