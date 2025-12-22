@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth/config'
 import { db, transaksi, penabung } from '@/lib/db'
-import { eq, desc, and, gte } from 'drizzle-orm'
+import { eq, desc } from 'drizzle-orm'
 import { logActivity, getClientIp } from '@/lib/utils/activity-logger'
+import { getIndonesiaDate } from '@/lib/utils/timezone'
 
 // GET - Fetch transaksi (with filters)
 export async function GET(request: NextRequest) {
@@ -14,7 +15,7 @@ export async function GET(request: NextRequest) {
     }
 
     const searchParams = request.nextUrl.searchParams
-    const date = searchParams.get('date') // format: YYYY-MM-DD
+    const date = searchParams.get('date')
     const penabungId = searchParams.get('penabungId')
 
     let query = db
@@ -35,13 +36,9 @@ export async function GET(request: NextRequest) {
       .orderBy(desc(transaksi.createdAt))
       .$dynamic()
 
-    // Filter by date (default: today)
-    if (date) {
-      query = query.where(eq(transaksi.tanggal, date))
-    } else {
-      const today = new Date().toISOString().split('T')[0]
-      query = query.where(eq(transaksi.tanggal, today))
-    }
+    // Filter by date (default: today in Indonesia timezone)
+    const filterDate = date || getIndonesiaDate()
+    query = query.where(eq(transaksi.tanggal, filterDate))
 
     // Filter by penabungId
     if (penabungId) {
@@ -107,7 +104,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const today = new Date().toISOString().split('T')[0]
+    // PERBAIKAN: Gunakan tanggal Indonesia timezone
+    const todayIndonesia = getIndonesiaDate()
 
     // Create transaksi
     const [newTransaksi] = await db
@@ -116,7 +114,7 @@ export async function POST(request: NextRequest) {
         penabungId,
         nominal: nominal.toString(),
         metodeBayar,
-        tanggal: today,
+        tanggal: todayIndonesia, // ✅ FIX: Gunakan tanggal Indonesia
         petugasId: session.user.id,
       })
       .returning()

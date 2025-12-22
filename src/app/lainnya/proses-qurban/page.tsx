@@ -225,15 +225,6 @@ export default function ProsesQurbanPage() {
               )}
             </>
           )}
-
-          {/* Info */}
-          <InfoCard variant="info" title="💡 Info">
-            <ul className="text-sm space-y-1">
-              <li>• Proses qurban hanya untuk penabung lunas</li>
-              <li>• Saldo akan dikurangi sesuai jumlah orang</li>
-              <li>• History tercatat untuk audit</li>
-            </ul>
-          </InfoCard>
         </div>
       </div>
     </div>

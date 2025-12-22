@@ -1,9 +1,9 @@
-import { format as dateFnsFormat, parseISO } from 'date-fns'
+import { format as formatFns, formatDistanceToNow } from 'date-fns'
 import { id } from 'date-fns/locale'
+import { toIndonesiaDate, getDayName, formatIndonesiaTime } from './timezone'
 
 /**
- * Format angka ke format Rupiah
- * @example formatCurrency(1000000) => "Rp 1.000.000"
+ * Format currency to Indonesian Rupiah
  */
 export function formatCurrency(amount: number): string {
   return new Intl.NumberFormat('id-ID', {
@@ -15,119 +15,116 @@ export function formatCurrency(amount: number): string {
 }
 
 /**
- * Format angka dengan separator tanpa Rp
- * @example formatNumber(1000000) => "1.000.000"
+ * Format date with Indonesia timezone
+ * @param date - Date object or string
+ * @param formatStr - Format string (e.g., 'dd MMM yyyy', 'dd/MM/yyyy')
+ */
+export function formatDate(date: Date | string, formatStr: string = 'dd MMM yyyy'): string {
+  const dateObj = typeof date === 'string' ? new Date(date) : date
+  const indonesiaDate = toIndonesiaDate(dateObj)
+  return formatFns(indonesiaDate, formatStr, { locale: id })
+}
+
+/**
+ * Format date with day name (e.g., "Senin, 22 Des 2025")
+ */
+export function formatDateWithDay(date: Date | string): string {
+  const dateObj = typeof date === 'string' ? new Date(date) : date
+  const indonesiaDate = toIndonesiaDate(dateObj)
+  const dayName = getDayName(indonesiaDate)
+  const formatted = formatFns(indonesiaDate, 'dd MMM yyyy', { locale: id })
+  return `${dayName}, ${formatted}`
+}
+
+/**
+ * Format datetime with day name and time (e.g., "Senin, 22 Des 2025 09:30")
+ */
+export function formatDateTime(date: Date | string): string {
+  const dateObj = typeof date === 'string' ? new Date(date) : date
+  const indonesiaDate = toIndonesiaDate(dateObj)
+  const dayName = getDayName(indonesiaDate)
+  const dateStr = formatFns(indonesiaDate, 'dd MMM yyyy', { locale: id })
+  const timeStr = formatIndonesiaTime(indonesiaDate)
+  return `${dayName}, ${dateStr} ${timeStr}`
+}
+
+/**
+ * Format time only (e.g., "09:30" or "09:30:45")
+ */
+export function formatTime(date: Date | string, includeSeconds: boolean = false): string {
+  return formatIndonesiaTime(date, includeSeconds)
+}
+
+/**
+ * Format relative date (e.g., "2 jam yang lalu", "3 hari yang lalu")
+ */
+export function formatRelativeDate(date: Date | string): string {
+  const dateObj = typeof date === 'string' ? new Date(date) : date
+  const indonesiaDate = toIndonesiaDate(dateObj)
+  
+  return formatDistanceToNow(indonesiaDate, {
+    addSuffix: true,
+    locale: id,
+  })
+}
+
+/**
+ * Format number with thousand separator
  */
 export function formatNumber(num: number): string {
   return new Intl.NumberFormat('id-ID').format(num)
 }
 
 /**
- * Parse string currency ke number
- * @example parseCurrency("Rp 1.000.000") => 1000000
- */
-export function parseCurrency(value: string): number {
-  return parseInt(value.replace(/[^0-9]/g, '')) || 0
-}
-
-/**
- * Format tanggal ke format Indonesia
- * @example formatDate(new Date(), 'dd MMMM yyyy') => "17 Desember 2025"
- */
-export function formatDate(
-  date: Date | string,
-  formatStr: string = 'dd MMMM yyyy'
-): string {
-  const dateObj = typeof date === 'string' ? parseISO(date) : date
-  return dateFnsFormat(dateObj, formatStr, { locale: id })
-}
-
-/**
- * Format tanggal relatif (kemarin, hari ini, besok)
- */
-export function formatRelativeDate(date: Date | string): string {
-  const dateObj = typeof date === 'string' ? parseISO(date) : date
-  const today = new Date()
-  const yesterday = new Date(today)
-  yesterday.setDate(yesterday.getDate() - 1)
-  const tomorrow = new Date(today)
-  tomorrow.setDate(tomorrow.getDate() + 1)
-
-  const dateStr = dateFnsFormat(dateObj, 'yyyy-MM-dd')
-  const todayStr = dateFnsFormat(today, 'yyyy-MM-dd')
-  const yesterdayStr = dateFnsFormat(yesterday, 'yyyy-MM-dd')
-  const tomorrowStr = dateFnsFormat(tomorrow, 'yyyy-MM-dd')
-
-  if (dateStr === todayStr) return 'Hari ini'
-  if (dateStr === yesterdayStr) return 'Kemarin'
-  if (dateStr === tomorrowStr) return 'Besok'
-
-  return formatDate(dateObj, 'dd MMM yyyy')
-}
-
-/**
- * Format nama hari dalam bahasa Indonesia
- */
-export function formatDayName(date: Date | string): string {
-  const dateObj = typeof date === 'string' ? parseISO(date) : date
-  return dateFnsFormat(dateObj, 'EEEE', { locale: id })
-}
-
-/**
- * Singkatan nama (ambil 2 huruf pertama untuk avatar)
- * @example getInitials("Budi Santoso") => "BS"
- */
-export function getInitials(name: string): string {
-  return name
-    .split(' ')
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2)
-}
-
-/**
- * Truncate text dengan ellipsis
- * @example truncate("Lorem ipsum dolor sit amet", 10) => "Lorem ipsu..."
- */
-export function truncate(text: string, maxLength: number): string {
-  if (text.length <= maxLength) return text
-  return text.slice(0, maxLength) + '...'
-}
-
-/**
- * Capitalize first letter
- * @example capitalize("hello world") => "Hello world"
- */
-export function capitalize(text: string): string {
-  return text.charAt(0).toUpperCase() + text.slice(1)
-}
-
-/**
- * Format nomor telepon Indonesia
- * @example formatPhone("081234567890") => "0812-3456-7890"
+ * Format phone number Indonesia
  */
 export function formatPhone(phone: string): string {
+  // Remove all non-digit characters
   const cleaned = phone.replace(/\D/g, '')
-  const match = cleaned.match(/^(\d{4})(\d{4})(\d{4})$/)
-  if (match) {
-    return `${match[1]}-${match[2]}-${match[3]}`
+  
+  // Format: 0812-3456-7890 or 021-1234-5678
+  if (cleaned.startsWith('0')) {
+    if (cleaned.length <= 11) {
+      return cleaned.replace(/(\d{4})(\d{4})(\d+)/, '$1-$2-$3')
+    } else {
+      return cleaned.replace(/(\d{4})(\d{4})(\d{4})/, '$1-$2-$3')
+    }
   }
+  
   return phone
 }
 
 /**
- * Validate email format
+ * Parse currency string to number
  */
-export function isValidEmail(email: string): boolean {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  return emailRegex.test(email)
+export function parseCurrency(value: string): number {
+  return parseFloat(value.replace(/[^0-9.-]+/g, ''))
 }
 
 /**
- * Validate phone number format (Indonesia)
+ * Truncate text with ellipsis
  */
-export function isValidPhone(phone: string): boolean {
-  const phoneRegex = /^(\+62|62|0)[2-9][0-9]{7,11}$/
-  return phoneRegex.test(phone.replace(/\D/g, ''))
+export function truncate(text: string, length: number): string {
+  if (text.length <= length) return text
+  return text.substring(0, length) + '...'
+}
+
+/**
+ * Format file size
+ */
+export function formatFileSize(bytes: number): string {
+  if (bytes === 0) return '0 Bytes'
+  
+  const k = 1024
+  const sizes = ['Bytes', 'KB', 'MB', 'GB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  
+  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i]
+}
+
+/**
+ * Format percentage
+ */
+export function formatPercentage(value: number, decimals: number = 0): string {
+  return `${value.toFixed(decimals)}%`
 }

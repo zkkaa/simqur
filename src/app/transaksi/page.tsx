@@ -21,7 +21,8 @@ import {
   Clock,
 } from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
-import { formatCurrency, formatDate, formatRelativeDate } from '@/lib/utils/format'
+import { formatCurrency, formatDateWithDay, formatTime } from '@/lib/utils/format'
+import { getIndonesiaDate } from '@/lib/utils/timezone'
 import type { Penabung } from '@/types/database'
 
 export default function TransaksiPage() {
@@ -42,7 +43,7 @@ export default function TransaksiPage() {
     variant: 'success',
   })
 
-  const today = new Date().toISOString().split('T')[0]
+  const today = getIndonesiaDate()
   const { data: transaksiList } = useTransaksi(today)
   const createMutation = useCreateTransaksi()
 
@@ -81,12 +82,9 @@ export default function TransaksiPage() {
     const currentNominalStr = nominal.toString()
 
     if (key === '000') {
-      // Jika klik 000, kali 1000
       if (nominal > 0) setNominal(nominal * 1000)
     } else {
-      // Gabungkan angka (seperti mengetik biasa)
       const newValue = currentNominalStr === '0' ? key : currentNominalStr + key
-      // Pastikan tidak melebihi limit saldo (misal 100 juta)
       if (parseInt(newValue) <= 100000000) {
         setNominal(parseInt(newValue))
       }
@@ -170,7 +168,7 @@ export default function TransaksiPage() {
             <Logo size="lg" showText={false} />
           </motion.div>
 
-          {/* Today's Summary */}
+          {/* Today's Summary with Day Name */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -179,7 +177,7 @@ export default function TransaksiPage() {
           >
             <div className="flex items-center gap-2 text-white/90 text-sm">
               <CalendarBlank weight="duotone" className="w-5 h-5" />
-              <span>{formatDate(new Date(), 'dd MMM yyyy')}</span>
+              <span>{formatDateWithDay(new Date())}</span>
             </div>
             <div className="text-white text-sm font-semibold">
               {transaksiList?.length || 0} transaksi
@@ -195,19 +193,17 @@ export default function TransaksiPage() {
             transition={{ delay: 0.2 }}
             className="bg-white rounded-2xl p-5 shadow-lg space-y-4"
           >
-            {/* Penabung Autocomplete */}
             <PenabungAutocomplete
               value={selectedPenabung}
               onChange={setSelectedPenabung}
             />
 
-            {/* Nominal Input */}
             <div onClick={() => setIsKeypadOpen(true)}>
               <CurrencyInput
                 label="Nominal Setoran"
                 value={nominal}
                 onChange={setNominal}
-                readOnly // Penting: Agar keyboard bawaan HP tidak muncul
+                readOnly
                 required
               />
             </div>
@@ -237,7 +233,6 @@ export default function TransaksiPage() {
               )}
             </AnimatePresence>
 
-            {/* Quick Amount Buttons */}
             <div>
               <p className="text-sm text-gray-600 mb-2">Nominal Cepat:</p>
               <div className="grid grid-cols-4 gap-2">
@@ -254,7 +249,6 @@ export default function TransaksiPage() {
               </div>
             </div>
 
-            {/* Metode Bayar */}
             <div>
               <p className="text-sm font-medium text-gray-700 mb-2">
                 Metode Bayar <span className="text-error">*</span>
@@ -263,10 +257,11 @@ export default function TransaksiPage() {
                 <button
                   type="button"
                   onClick={() => setMetodeBayar('tunai')}
-                  className={`py-3 px-4 rounded-xl border-2 transition-all flex items-center justify-center gap-2 ${metodeBayar === 'tunai'
-                    ? 'border-primary-500 bg-primary-50 text-primary-700'
-                    : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
-                    }`}
+                  className={`py-3 px-4 rounded-xl border-2 transition-all flex items-center justify-center gap-2 ${
+                    metodeBayar === 'tunai'
+                      ? 'border-primary-500 bg-primary-50 text-primary-700'
+                      : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                  }`}
                 >
                   <Money weight="duotone" className="w-6 h-6" />
                   <span className="font-semibold">Tunai</span>
@@ -275,10 +270,11 @@ export default function TransaksiPage() {
                 <button
                   type="button"
                   onClick={() => setMetodeBayar('transfer')}
-                  className={`py-3 px-4 rounded-xl border-2 transition-all flex items-center justify-center gap-2 ${metodeBayar === 'transfer'
-                    ? 'border-primary-500 bg-primary-50 text-primary-700'
-                    : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
-                    }`}
+                  className={`py-3 px-4 rounded-xl border-2 transition-all flex items-center justify-center gap-2 ${
+                    metodeBayar === 'transfer'
+                      ? 'border-primary-500 bg-primary-50 text-primary-700'
+                      : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                  }`}
                 >
                   <CreditCard weight="duotone" className="w-6 h-6" />
                   <span className="font-semibold">Transfer</span>
@@ -286,7 +282,6 @@ export default function TransaksiPage() {
               </div>
             </div>
 
-            {/* Preview Saldo */}
             {selectedPenabung && nominal > 0 && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
@@ -314,7 +309,6 @@ export default function TransaksiPage() {
               </motion.div>
             )}
 
-            {/* Submit Button */}
             <Button
               variant="primary"
               fullWidth
@@ -326,7 +320,7 @@ export default function TransaksiPage() {
             </Button>
           </motion.div>
 
-          {/* Today's Transactions */}
+          {/* Today's Transactions with Day Name */}
           {transaksiList && transaksiList.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -353,10 +347,7 @@ export default function TransaksiPage() {
                   <div className="flex items-center gap-4 text-xs text-gray-500">
                     <span className="flex items-center gap-1">
                       <Clock weight="duotone" className="w-4 h-4" />
-                      {new Date(item.createdAt).toLocaleTimeString('id-ID', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
+                      {formatTime(item.createdAt)}
                     </span>
                     <span className="px-2 py-0.5 bg-gray-100 rounded-full">
                       {item.metodeBayar === 'tunai' ? 'Tunai' : 'Transfer'}
@@ -369,7 +360,6 @@ export default function TransaksiPage() {
         </div>
       </div>
 
-      {/* Confirmation Modal */}
       {selectedPenabung && (
         <TransaksiConfirmModal
           isOpen={showConfirmModal}

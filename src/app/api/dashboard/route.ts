@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth/config'
 import { db, penabung, transaksi, users, pengaturan } from '@/lib/db'
 import { eq, isNull, sql, and, gte, lte } from 'drizzle-orm'
+import { getMonthRange } from '@/lib/utils/timezone'
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,8 +18,8 @@ export async function GET(request: NextRequest) {
     }
 
     const searchParams = request.nextUrl.searchParams
-    const month = searchParams.get('month') || new Date().getMonth() + 1
-    const year = searchParams.get('year') || new Date().getFullYear()
+    const month = parseInt(searchParams.get('month') || String(new Date().getMonth() + 1))
+    const year = parseInt(searchParams.get('year') || String(new Date().getFullYear()))
 
     // 1. Get Statistics
     const [stats] = await db
@@ -48,10 +49,8 @@ export async function GET(request: NextRequest) {
     const targetQurban = targetSetting ? parseInt(targetSetting.value) : 3600000
 
     // 4. Get Chart Data - Daily income for selected month
-    const startDate = `${year}-${String(month).padStart(2, '0')}-01`
-    const endDate = new Date(Number(year), Number(month), 0)
-      .toISOString()
-      .split('T')[0]
+    // ✅ FIX: Gunakan getMonthRange untuk tanggal yang benar
+    const { start: startDate, end: endDate } = getMonthRange(month, year)
 
     const chartData = await db
       .select({

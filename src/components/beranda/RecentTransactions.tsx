@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
-import { Money, CreditCard, Calendar, User } from '@phosphor-icons/react'
-import { formatCurrency, formatDate } from '@/lib/utils/format'
+import { Money, CreditCard, Calendar, User, Clock } from '@phosphor-icons/react'
+import { formatCurrency, formatDateWithDay, formatTime } from '@/lib/utils/format'
 import Badge from '@/components/common/Badge'
 
 interface RecentTransaksi {
@@ -81,27 +81,25 @@ export default function RecentTransactions({ data }: RecentTransactionsProps) {
               </p>
             </div>
 
-            {/* Details */}
-            <div className="flex items-center justify-between text-xs text-gray-500">
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1">
-                  <Calendar weight="duotone" className="w-3 h-3" />
-                  <span>{formatDate(new Date(item.tanggal), 'dd MMM yyyy')}</span>
-                </div>
-                <Badge
-                  variant={item.metodeBayar === 'tunai' ? 'success' : 'info'}
-                  size="sm"
-                >
-                  {item.metodeBayar === 'tunai' ? 'Tunai' : 'Transfer'}
-                </Badge>
-              </div>
+            {/* Date & Time with Day Name */}
+            <div className="flex items-center gap-2 text-xs text-gray-600 mb-2">
+              <Calendar weight="duotone" className="w-3.5 h-3.5" />
+              <span>{formatDateWithDay(item.tanggal)}</span>
+              <Clock weight="duotone" className="w-3.5 h-3.5 ml-1" />
+              <span>{formatTime(item.createdAt)}</span>
             </div>
 
-            {/* Petugas */}
-            <div className="mt-2 pt-2 border-t border-gray-200">
+            {/* Badge & Petugas */}
+            <div className="flex items-center justify-between">
+              <Badge
+                variant={item.metodeBayar === 'tunai' ? 'success' : 'info'}
+                size="sm"
+              >
+                {item.metodeBayar === 'tunai' ? 'Tunai' : 'Transfer'}
+              </Badge>
               <div className="flex items-center gap-1 text-xs text-gray-500">
                 <User weight="duotone" className="w-3 h-3" />
-                <span>Petugas: {item.petugas.namaLengkap}</span>
+                <span>{item.petugas.namaLengkap}</span>
               </div>
             </div>
           </motion.div>
