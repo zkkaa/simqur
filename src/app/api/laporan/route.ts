@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth/config'
 import { db, transaksi, penabung, users } from '@/lib/db'
 import { eq, and, gte, lte, sql, desc } from 'drizzle-orm'
+import { formatDateForDB } from '@/lib/utils/timezone'
 
 // GET - Generate laporan based on type
 export async function GET(request: NextRequest) {
@@ -26,15 +27,19 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // ✅ FIX: Format dates to ensure they're in YYYY-MM-DD format
+    const formattedStartDate = startDate ? formatDateForDB(startDate) : null
+    const formattedEndDate = endDate ? formatDateForDB(endDate) : null
+
     // Laporan Keseluruhan Warga
     if (type === 'keseluruhan') {
       let conditions: any[] = []
 
-      if (startDate) {
-        conditions.push(gte(transaksi.tanggal, startDate))
+      if (formattedStartDate) {
+        conditions.push(gte(transaksi.tanggal, formattedStartDate))
       }
-      if (endDate) {
-        conditions.push(lte(transaksi.tanggal, endDate))
+      if (formattedEndDate) {
+        conditions.push(lte(transaksi.tanggal, formattedEndDate))
       }
 
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined
@@ -45,6 +50,7 @@ export async function GET(request: NextRequest) {
           tanggal: transaksi.tanggal,
           nominal: transaksi.nominal,
           metodeBayar: transaksi.metodeBayar,
+          createdAt: transaksi.createdAt,
           penabung: {
             id: penabung.id,
             nama: penabung.nama,
@@ -79,11 +85,11 @@ export async function GET(request: NextRequest) {
 
       let conditions: any[] = [eq(transaksi.penabungId, penabungId)]
 
-      if (startDate) {
-        conditions.push(gte(transaksi.tanggal, startDate))
+      if (formattedStartDate) {
+        conditions.push(gte(transaksi.tanggal, formattedStartDate))
       }
-      if (endDate) {
-        conditions.push(lte(transaksi.tanggal, endDate))
+      if (formattedEndDate) {
+        conditions.push(lte(transaksi.tanggal, formattedEndDate))
       }
 
       const result = await db
@@ -92,6 +98,7 @@ export async function GET(request: NextRequest) {
           tanggal: transaksi.tanggal,
           nominal: transaksi.nominal,
           metodeBayar: transaksi.metodeBayar,
+          createdAt: transaksi.createdAt,
           petugas: {
             nama: users.namaLengkap,
           },
@@ -120,11 +127,11 @@ export async function GET(request: NextRequest) {
     if (type === 'keuangan') {
       let conditions: any[] = []
 
-      if (startDate) {
-        conditions.push(gte(transaksi.tanggal, startDate))
+      if (formattedStartDate) {
+        conditions.push(gte(transaksi.tanggal, formattedStartDate))
       }
-      if (endDate) {
-        conditions.push(lte(transaksi.tanggal, endDate))
+      if (formattedEndDate) {
+        conditions.push(lte(transaksi.tanggal, formattedEndDate))
       }
 
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined
@@ -163,11 +170,11 @@ export async function GET(request: NextRequest) {
 
       let conditions: any[] = [eq(transaksi.petugasId, petugasId)]
 
-      if (startDate) {
-        conditions.push(gte(transaksi.tanggal, startDate))
+      if (formattedStartDate) {
+        conditions.push(gte(transaksi.tanggal, formattedStartDate))
       }
-      if (endDate) {
-        conditions.push(lte(transaksi.tanggal, endDate))
+      if (formattedEndDate) {
+        conditions.push(lte(transaksi.tanggal, formattedEndDate))
       }
 
       const result = await db
@@ -176,6 +183,7 @@ export async function GET(request: NextRequest) {
           tanggal: transaksi.tanggal,
           nominal: transaksi.nominal,
           metodeBayar: transaksi.metodeBayar,
+          createdAt: transaksi.createdAt,
           penabung: {
             nama: penabung.nama,
           },

@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth/config'
 import { db, pengaturan } from '@/lib/db'
 import { eq } from 'drizzle-orm'
 import { logActivity, getClientIp } from '@/lib/utils/activity-logger'
+import { getIndonesiaDateTime } from '@/lib/utils/timezone'
 
 // GET - Get pengaturan
 export async function GET(request: NextRequest) {
@@ -69,6 +70,9 @@ export async function PUT(request: NextRequest) {
       .where(eq(pengaturan.key, 'target_qurban'))
       .limit(1)
 
+    // ✅ FIX: Gunakan timezone Indonesia untuk updatedAt
+    const indonesiaTime = getIndonesiaDateTime()
+
     // Upsert setting
     const [updated] = await db
       .insert(pengaturan)
@@ -76,14 +80,14 @@ export async function PUT(request: NextRequest) {
         key: 'target_qurban',
         value: targetQurban.toString(),
         updatedBy: session.user.id,
-        updatedAt: new Date(),
+        updatedAt: indonesiaTime,
       })
       .onConflictDoUpdate({
         target: pengaturan.key,
         set: {
           value: targetQurban.toString(),
           updatedBy: session.user.id,
-          updatedAt: new Date(),
+          updatedAt: indonesiaTime,
         },
       })
       .returning()

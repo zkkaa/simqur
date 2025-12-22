@@ -1,6 +1,6 @@
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
-import { formatCurrency, formatDate } from './format'
+import { formatCurrency, formatDateWithDay, formatDateTime } from '@/lib/utils/format'
 
 export function generateLaporanKeseluruhanPDF(
   data: any[],
@@ -26,7 +26,7 @@ export function generateLaporanKeseluruhanPDF(
     head: [['No', 'Tanggal', 'Penabung', 'Petugas', 'Nominal', 'Metode']],
     body: data.map((item, index) => [
       index + 1,
-      formatDate(new Date(item.tanggal), 'dd/MM/yyyy'),
+      formatDateWithDay(item.tanggal),
       item.penabung?.nama || '-',
       item.petugas?.nama || '-',
       formatCurrency(parseFloat(item.nominal)),
@@ -35,12 +35,12 @@ export function generateLaporanKeseluruhanPDF(
     foot: [['', '', '', 'TOTAL:', formatCurrency(total), '']],
     styles: { fontSize: 8 },
     headStyles: {
-      fillColor: [22, 163, 74], // Green-600
+      fillColor: [22, 163, 74],
       textColor: [255, 255, 255],
       fontStyle: 'bold',
     },
     footStyles: {
-      fillColor: [21, 128, 61], // Green-700
+      fillColor: [21, 128, 61],
       textColor: [255, 255, 255],
       fontStyle: 'bold',
       halign: 'right',
@@ -51,7 +51,7 @@ export function generateLaporanKeseluruhanPDF(
   const pageCount = (doc as any).internal.getNumberOfPages()
   doc.setFontSize(8)
   doc.text(
-    `Dicetak: ${formatDate(new Date(), 'dd MMMM yyyy HH:mm')}`,
+    `Dicetak: ${formatDateTime(new Date())}`,
     14,
     doc.internal.pageSize.height - 10
   )
@@ -95,7 +95,7 @@ export function generateLaporanPerWargaPDF(
     head: [['No', 'Tanggal', 'Petugas', 'Nominal', 'Metode']],
     body: data.map((item, index) => [
       index + 1,
-      formatDate(new Date(item.tanggal), 'dd/MM/yyyy'),
+      formatDateWithDay(item.tanggal),
       item.petugas?.nama || '-',
       formatCurrency(parseFloat(item.nominal)),
       item.metodeBayar === 'tunai' ? 'Tunai' : 'Transfer',
@@ -119,7 +119,7 @@ export function generateLaporanPerWargaPDF(
   const pageCount = (doc as any).internal.getNumberOfPages()
   doc.setFontSize(8)
   doc.text(
-    `Dicetak: ${formatDate(new Date(), 'dd MMMM yyyy HH:mm')}`,
+    `Dicetak: ${formatDateTime(new Date())}`,
     14,
     doc.internal.pageSize.height - 10
   )
@@ -156,7 +156,7 @@ export function generateLaporanKeuanganPDF(
     head: [['No', 'Tanggal', 'Jumlah Transaksi', 'Total Nominal']],
     body: data.map((item, index) => [
       index + 1,
-      formatDate(new Date(item.tanggal), 'dd/MM/yyyy'),
+      formatDateWithDay(item.tanggal),
       item.jumlahTransaksi,
       formatCurrency(parseFloat(item.totalNominal)),
     ]),
@@ -179,7 +179,7 @@ export function generateLaporanKeuanganPDF(
   const pageCount = (doc as any).internal.getNumberOfPages()
   doc.setFontSize(8)
   doc.text(
-    `Dicetak: ${formatDate(new Date(), 'dd MMMM yyyy HH:mm')}`,
+    `Dicetak: ${formatDateTime(new Date())}`,
     14,
     doc.internal.pageSize.height - 10
   )
@@ -219,7 +219,7 @@ export function generateLaporanPerPetugasPDF(
     head: [['No', 'Tanggal', 'Penabung', 'Nominal', 'Metode']],
     body: data.map((item, index) => [
       index + 1,
-      formatDate(new Date(item.tanggal), 'dd/MM/yyyy'),
+      formatDateWithDay(item.tanggal),
       item.penabung?.nama || '-',
       formatCurrency(parseFloat(item.nominal)),
       item.metodeBayar === 'tunai' ? 'Tunai' : 'Transfer',
@@ -243,7 +243,7 @@ export function generateLaporanPerPetugasPDF(
   const pageCount = (doc as any).internal.getNumberOfPages()
   doc.setFontSize(8)
   doc.text(
-    `Dicetak: ${formatDate(new Date(), 'dd MMMM yyyy HH:mm')}`,
+    `Dicetak: ${formatDateTime(new Date())}`,
     14,
     doc.internal.pageSize.height - 10
   )

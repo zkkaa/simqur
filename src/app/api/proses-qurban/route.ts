@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth/config'
 import { db, penarikanQurban, penabung, users } from '@/lib/db'
 import { eq, desc } from 'drizzle-orm'
 import { logActivity, getClientIp } from '@/lib/utils/activity-logger'
+import { getIndonesiaDate } from '@/lib/utils/timezone'
 
 // GET - Get all proses qurban history
 export async function GET(request: NextRequest) {
@@ -114,9 +115,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create penarikan record
+    // ✅ FIX: Gunakan timezone Indonesia
     const tahunPeriode = new Date().getFullYear()
-    const tanggalProses = new Date().toISOString().split('T')[0]
+    const tanggalProses = getIndonesiaDate()
 
     const [newPenarikan] = await db
       .insert(penarikanQurban)

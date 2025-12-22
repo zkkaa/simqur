@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth/config'
 import { db, activityLog } from '@/lib/db'
-import { desc, like, and, eq } from 'drizzle-orm'
+import { desc, like, and, eq, gte, lte, sql } from 'drizzle-orm'
+import { formatDateForDB, getIndonesiaDate } from '@/lib/utils/timezone'
 
 // GET - Get activity logs with filters
 export async function GET(request: NextRequest) {
@@ -34,21 +35,13 @@ export async function GET(request: NextRequest) {
       conditions.push(eq(activityLog.action, action as any))
     }
 
-    // Date filter
+    // ✅ FIX: Date filter menggunakan timezone Indonesia
     if (date) {
-      const startDate = new Date(date)
-      startDate.setHours(0, 0, 0, 0)
-      const endDate = new Date(date)
-      endDate.setHours(23, 59, 59, 999)
-
-      // For date filtering, we need to compare the timestamp
+      const targetDate = formatDateForDB(date)
+      
+      // Extract date from timestamp and compare
       conditions.push(
-        and(
-          // @ts-ignore
-          sql`${activityLog.createdAt} >= ${startDate.toISOString()}`,
-          // @ts-ignore
-          sql`${activityLog.createdAt} <= ${endDate.toISOString()}`
-        )
+        sql`DATE(${activityLog.createdAt}) = ${targetDate}`
       )
     }
 

@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx'
-import { formatCurrency, formatDate } from './format'
+import { formatCurrency, formatDateWithDay, formatDateTime } from '@/lib/utils/format'
 
 export function generateLaporanKeseluruhanExcel(
   data: any[],
@@ -9,12 +9,12 @@ export function generateLaporanKeseluruhanExcel(
   const worksheetData = [
     ['SIMQUR - LAPORAN TRANSAKSI KESELURUHAN'],
     [`Periode: ${period}`],
-    [`Dicetak: ${formatDate(new Date(), 'dd MMMM yyyy HH:mm')}`],
+    [`Dicetak: ${formatDateTime(new Date())}`],
     [],
     ['No', 'Tanggal', 'Penabung', 'Petugas', 'Nominal', 'Metode Bayar'],
     ...data.map((item, index) => [
       index + 1,
-      formatDate(new Date(item.tanggal), 'dd/MM/yyyy'),
+      formatDateWithDay(item.tanggal),
       item.penabung?.nama || '-',
       item.petugas?.nama || '-',
       parseFloat(item.nominal),
@@ -26,17 +26,15 @@ export function generateLaporanKeseluruhanExcel(
 
   const worksheet = XLSX.utils.aoa_to_sheet(worksheetData)
   
-  // Column widths
   worksheet['!cols'] = [
     { wch: 5 },
-    { wch: 12 },
+    { wch: 20 },
     { wch: 25 },
     { wch: 25 },
     { wch: 15 },
     { wch: 12 },
   ]
 
-  // Format currency column
   const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1')
   for (let R = 5; R <= range.e.r - 2; R++) {
     const cellAddress = XLSX.utils.encode_cell({ r: R, c: 4 })
@@ -61,12 +59,12 @@ export function generateLaporanPerWargaExcel(
     [`Nama: ${penabung?.nama || '-'}`],
     [`Saldo Total: ${formatCurrency(parseFloat(penabung?.totalSaldo || 0))}`],
     [`Periode: ${period}`],
-    [`Dicetak: ${formatDate(new Date(), 'dd MMMM yyyy HH:mm')}`],
+    [`Dicetak: ${formatDateTime(new Date())}`],
     [],
     ['No', 'Tanggal', 'Petugas', 'Nominal', 'Metode Bayar'],
     ...data.map((item, index) => [
       index + 1,
-      formatDate(new Date(item.tanggal), 'dd/MM/yyyy'),
+      formatDateWithDay(item.tanggal),
       item.petugas?.nama || '-',
       parseFloat(item.nominal),
       item.metodeBayar === 'tunai' ? 'Tunai' : 'Transfer',
@@ -79,13 +77,12 @@ export function generateLaporanPerWargaExcel(
 
   worksheet['!cols'] = [
     { wch: 5 },
-    { wch: 12 },
+    { wch: 20 },
     { wch: 25 },
     { wch: 15 },
     { wch: 12 },
   ]
 
-  // Format currency column
   const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1')
   for (let R = 7; R <= range.e.r - 2; R++) {
     const cellAddress = XLSX.utils.encode_cell({ r: R, c: 3 })
@@ -107,12 +104,12 @@ export function generateLaporanKeuanganExcel(
   const worksheetData = [
     ['SIMQUR - LAPORAN KEUANGAN'],
     [`Periode: ${period}`],
-    [`Dicetak: ${formatDate(new Date(), 'dd MMMM yyyy HH:mm')}`],
+    [`Dicetak: ${formatDateTime(new Date())}`],
     [],
     ['No', 'Tanggal', 'Jumlah Transaksi', 'Total Nominal'],
     ...data.map((item, index) => [
       index + 1,
-      formatDate(new Date(item.tanggal), 'dd/MM/yyyy'),
+      formatDateWithDay(item.tanggal),
       parseInt(item.jumlahTransaksi),
       parseFloat(item.totalNominal),
     ]),
@@ -124,12 +121,11 @@ export function generateLaporanKeuanganExcel(
 
   worksheet['!cols'] = [
     { wch: 5 },
-    { wch: 12 },
+    { wch: 20 },
     { wch: 18 },
     { wch: 15 },
   ]
 
-  // Format currency column
   const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1')
   for (let R = 5; R <= range.e.r - 2; R++) {
     const cellAddress = XLSX.utils.encode_cell({ r: R, c: 3 })
@@ -154,12 +150,12 @@ export function generateLaporanPerPetugasExcel(
     [`Nama: ${petugas?.namaLengkap || '-'}`],
     [`Email: ${petugas?.email || '-'}`],
     [`Periode: ${period}`],
-    [`Dicetak: ${formatDate(new Date(), 'dd MMMM yyyy HH:mm')}`],
+    [`Dicetak: ${formatDateTime(new Date())}`],
     [],
     ['No', 'Tanggal', 'Penabung', 'Nominal', 'Metode Bayar'],
     ...data.map((item, index) => [
       index + 1,
-      formatDate(new Date(item.tanggal), 'dd/MM/yyyy'),
+      formatDateWithDay(item.tanggal),
       item.penabung?.nama || '-',
       parseFloat(item.nominal),
       item.metodeBayar === 'tunai' ? 'Tunai' : 'Transfer',
@@ -172,13 +168,12 @@ export function generateLaporanPerPetugasExcel(
 
   worksheet['!cols'] = [
     { wch: 5 },
-    { wch: 12 },
+    { wch: 20 },
     { wch: 25 },
     { wch: 15 },
     { wch: 12 },
   ]
 
-  // Format currency column
   const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1')
   for (let R = 7; R <= range.e.r - 2; R++) {
     const cellAddress = XLSX.utils.encode_cell({ r: R, c: 3 })

@@ -1,7 +1,8 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { formatCurrency, formatDate } from '@/lib/utils/format'
+import { formatCurrency, formatDateWithDay, formatTime } from '@/lib/utils/format'
+import { User, CalendarBlank, Clock } from '@phosphor-icons/react'
 import Badge from '@/components/common/Badge'
 
 interface LaporanResultCardProps {
@@ -15,140 +16,85 @@ export default function LaporanResultCard({
   index,
   type,
 }: LaporanResultCardProps) {
-  // Render untuk Laporan Keseluruhan
-  if (type === 'keseluruhan') {
-    return (
-      <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: index * 0.02 }}
-        className="p-4 bg-white rounded-xl border border-gray-200 hover:shadow-md transition-shadow"
-      >
-        <div className="flex justify-between items-start mb-3">
-          <div className="flex-1 min-w-0">
-            <h4 className="font-semibold text-gray-900 truncate">
-              {data.penabung?.nama}
-            </h4>
-            <p className="text-xs text-gray-500 mt-0.5">
-              Petugas: {data.petugas?.nama}
-            </p>
-          </div>
-          <div className="text-right">
-            <p className="font-bold text-primary-600 text-lg">
-              {formatCurrency(parseFloat(data.nominal))}
-            </p>
-            <p className="text-xs text-gray-500">
-              {formatDate(new Date(data.tanggal), 'dd/MM/yyyy')}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Badge
-            variant={data.metodeBayar === 'tunai' ? 'success' : 'info'}
-            size="sm"
-          >
-            {data.metodeBayar === 'tunai' ? '💵 Tunai' : '🏦 Transfer'}
-          </Badge>
-        </div>
-      </motion.div>
-    )
-  }
-
-  // Render untuk Laporan Per Warga
-  if (type === 'per-warga') {
-    return (
-      <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: index * 0.02 }}
-        className="p-4 bg-white rounded-xl border border-gray-200 hover:shadow-md transition-shadow"
-      >
-        <div className="flex justify-between items-start">
-          <div>
-            <p className="text-sm font-medium text-gray-700">
-              {formatDate(new Date(data.tanggal), 'dd MMMM yyyy')}
-            </p>
-            <p className="text-xs text-gray-500 mt-1">
-              Petugas: {data.petugas?.nama}
-            </p>
-          </div>
-          <div className="text-right">
-            <p className="font-bold text-primary-600 text-lg">
-              {formatCurrency(parseFloat(data.nominal))}
-            </p>
-            <Badge
-              variant={data.metodeBayar === 'tunai' ? 'success' : 'info'}
-              size="sm"
-              className="mt-1"
-            >
-              {data.metodeBayar === 'tunai' ? '💵' : '🏦'}
-            </Badge>
-          </div>
-        </div>
-      </motion.div>
-    )
-  }
-
-  // Render untuk Laporan Keuangan
   if (type === 'keuangan') {
     return (
       <motion.div
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: index * 0.02 }}
-        className="p-4 bg-white rounded-xl border border-gray-200 hover:shadow-md transition-shadow"
+        className="bg-white rounded-xl p-4 shadow-sm border border-gray-200"
       >
-        <div className="flex justify-between items-center">
-          <div>
-            <p className="font-semibold text-gray-900">
-              {formatDate(new Date(data.tanggal), 'dd MMMM yyyy')}
-            </p>
-            <p className="text-sm text-gray-600 mt-1">
-              {data.jumlahTransaksi} transaksi
-            </p>
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <CalendarBlank weight="duotone" className="w-5 h-5 text-gray-600" />
+            <h4 className="font-semibold text-gray-900">
+              {formatDateWithDay(data.tanggal)}
+            </h4>
           </div>
-          <p className="font-bold text-primary-600 text-xl">
+          <p className="font-bold text-primary-600">
             {formatCurrency(parseFloat(data.totalNominal))}
           </p>
         </div>
+        <p className="text-sm text-gray-600">
+          {data.jumlahTransaksi} transaksi
+        </p>
       </motion.div>
     )
   }
 
-  // Render untuk Laporan Per Petugas
-  if (type === 'per-petugas') {
-    return (
-      <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: index * 0.02 }}
-        className="p-4 bg-white rounded-xl border border-gray-200 hover:shadow-md transition-shadow"
-      >
-        <div className="flex justify-between items-start">
-          <div className="flex-1 min-w-0">
-            <h4 className="font-semibold text-gray-900 truncate">
-              {data.penabung?.nama}
-            </h4>
-            <p className="text-xs text-gray-500 mt-0.5">
-              {formatDate(new Date(data.tanggal), 'dd/MM/yyyy')}
-            </p>
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: index * 0.02 }}
+      className="bg-white rounded-xl p-4 shadow-sm border border-gray-200"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2 flex-1 min-w-0">
+          <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
+            <User weight="duotone" className="w-4 h-4 text-primary-600" />
           </div>
-          <div className="text-right">
-            <p className="font-bold text-primary-600 text-lg">
-              {formatCurrency(parseFloat(data.nominal))}
-            </p>
-            <Badge
-              variant={data.metodeBayar === 'tunai' ? 'success' : 'info'}
-              size="sm"
-              className="mt-1"
-            >
-              {data.metodeBayar === 'tunai' ? '💵' : '🏦'}
-            </Badge>
-          </div>
+          <h4 className="font-semibold text-gray-900 truncate">
+            {type === 'keseluruhan'
+              ? data.penabung?.nama || '-'
+              : type === 'per-petugas'
+              ? data.penabung?.nama || '-'
+              : data.petugas?.nama || '-'}
+          </h4>
         </div>
-      </motion.div>
-    )
-  }
+        <p className="font-bold text-primary-600 text-sm">
+          {formatCurrency(parseFloat(data.nominal))}
+        </p>
+      </div>
 
-  return null
+      {/* Date & Time with Day Name */}
+      <div className="flex items-center gap-3 text-xs text-gray-600 mb-2">
+        <div className="flex items-center gap-1">
+          <CalendarBlank weight="duotone" className="w-3.5 h-3.5" />
+          <span>{formatDateWithDay(data.tanggal)}</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <Clock weight="duotone" className="w-3.5 h-3.5" />
+          <span>{formatTime(data.createdAt)}</span>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="flex items-center justify-between">
+        <Badge
+          variant={data.metodeBayar === 'tunai' ? 'success' : 'info'}
+          size="sm"
+        >
+          {data.metodeBayar === 'tunai' ? 'Tunai' : 'Transfer'}
+        </Badge>
+
+        {type === 'keseluruhan' && data.petugas && (
+          <p className="text-xs text-gray-500">
+            Petugas: {data.petugas.nama}
+          </p>
+        )}
+      </div>
+    </motion.div>
+  )
 }

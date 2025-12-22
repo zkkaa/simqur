@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { formatCurrency, formatDate } from '@/lib/utils/format'
+import { formatCurrency, formatDateWithDay } from '@/lib/utils/format'
 import { User, Users, CalendarBlank, CurrencyCircleDollar } from '@phosphor-icons/react'
 
 interface HistoryQurbanCardProps {
@@ -70,7 +70,7 @@ export default function HistoryQurbanCard({
             <span>Tanggal Proses</span>
           </div>
           <span className="font-medium text-gray-900">
-            {formatDate(new Date(history.tanggalProses), 'dd MMM yyyy')}
+            {formatDateWithDay(history.tanggalProses)}
           </span>
         </div>
       </div>
