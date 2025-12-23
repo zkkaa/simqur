@@ -71,7 +71,7 @@ export default function PetugasCard({
                 className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                   petugas.isActive
                     ? 'bg-green-100 text-green-700'
-                    : 'bg-gray-200 text-gray-600'
+                    : 'bg-red-100 text-red-600'
                 }`}
               >
                 {petugas.isActive ? 'Aktif' : 'Nonaktif'}

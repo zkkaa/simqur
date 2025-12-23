@@ -15,6 +15,7 @@ import BottomNav from '@/components/layouts/BottomNav'
 import LaporanTypeCard from '@/components/laporan/LaporanTypeCard'
 import LaporanSummaryCard from '@/components/laporan/LaporanSummaryCard'
 import LaporanResultCard from '@/components/laporan/LaporanResultCard'
+import PetugasSelectorLaporan from '@/components/laporan/PetugasSelectorLaporan'
 import PenabungSelectorLaporan from '@/components/laporan/PenabungSelectorLaporan'
 import {
   FileText,
@@ -277,8 +278,7 @@ export default function LaporanPage() {
             period
           )
           petugasPDF.save(
-            `Laporan_Petugas_${
-              laporanData.petugas.namaLengkap
+            `Laporan_Petugas_${laporanData.petugas.namaLengkap
             }_${format(new Date(), 'yyyyMMdd')}.pdf`
           )
           break
@@ -358,8 +358,7 @@ export default function LaporanPage() {
           )
           downloadExcel(
             workbook,
-            `Laporan_Petugas_${
-              laporanData.petugas.namaLengkap
+            `Laporan_Petugas_${laporanData.petugas.namaLengkap
             }_${format(new Date(), 'yyyyMMdd')}`
           )
           break
@@ -519,23 +518,11 @@ export default function LaporanPage() {
 
               {/* Petugas Selector */}
               {selectedType === 'per-petugas' && (
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Pilih Petugas <span className="text-error">*</span>
-                  </label>
-                  <select
-                    value={petugasId}
-                    onChange={(e) => setPetugasId(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  >
-                    <option value="">-- Pilih Petugas --</option>
-                    {petugasList?.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.namaLengkap}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <PetugasSelectorLaporan
+                  value={petugasId}
+                  onChange={setPetugasId}
+                  disabled={false}
+                />
               )}
             </div>
           </div>

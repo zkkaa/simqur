@@ -1,7 +1,8 @@
 "use client"
 import { cn } from '@/lib/utils/cn'
 import { Cow } from '@phosphor-icons/react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import Image from 'next/image'
 
 interface LogoProps {
   size?: 'sm' | 'md' | 'lg'
@@ -30,9 +31,18 @@ const sizeConfig = {
   },
 }
 
-export default function Logo({ size = 'md', showText = true, className }: LogoProps) {
+export default function Logo({ size = 'lg', showText = true, className }: LogoProps) {
   const config = sizeConfig[size]
   const [imageError, setImageError] = useState(false)
+  const [isClient, setIsClient] = useState(false)
+
+  // ✅ FIX: Pastikan hanya render di client side
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
+  // ✅ FIX: Coba beberapa path alternatif
+  const logoPath = '/logooo.png'
 
   return (
     <div className={cn('flex flex-col items-center gap-2', className)}>
@@ -42,17 +52,22 @@ export default function Logo({ size = 'md', showText = true, className }: LogoPr
           config.container
         )}
       >
-        {!imageError ? (
-          <img 
-            src="/logo.png" 
+        {!imageError && isClient ? (
+          <Image 
+            src={logoPath}
             alt="SIMQUR Logo" 
             width={config.iconSize} 
             height={config.iconSize}
             className="object-contain"
-            onError={() => setImageError(true)}
+            onError={() => {
+              console.error('Logo image failed to load:', logoPath)
+              setImageError(true)
+            }}
+            priority
+            unoptimized
           />
         ) : (
-          // Fallback ke icon jika gambar gagal load
+          // Fallback ke icon jika gambar gagal load atau masih server-side
           <Cow weight="fill" className={cn('text-white', config.iconClass)} />
         )}
       </div>

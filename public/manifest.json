@@ -1,0 +1,21 @@
+{
+  "name": "SIMQUR - Sistem Manajemen Qurban",
+  "short_name": "SIMQUR",
+  "description": "Sistem Manajemen Qurban Sambong Sawah",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#10b981",
+  "icons": [
+    {
+      "src": "/logooo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/logooo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
