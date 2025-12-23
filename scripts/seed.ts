@@ -1,5 +1,5 @@
 import { db, users, pengaturan } from '../src/lib/db'
-import { hashPassword } from '../src/lib/auth/config'
+import { hashPassword } from '../src/lib/auth/helpers'
 
 async function seed() {
   console.log('🌱 Seeding database...')

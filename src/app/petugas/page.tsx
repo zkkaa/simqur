@@ -67,7 +67,6 @@ export default function PetugasPage() {
     return <LoadingPage text="Memuat..." />
   }
 
-  // Redirect if not admin
   if (user?.role !== 'admin') {
     router.push('/transaksi')
     return null
@@ -181,7 +180,6 @@ export default function PetugasPage() {
       />
 
       <div className="max-w-sm mx-auto">
-        {/* Header */}
         <div className="bg-gradient-to-br from-primary-600 to-primary-700 px-4 pt-8 pb-6 rounded-b-3xl shadow-lg">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -203,7 +201,6 @@ export default function PetugasPage() {
           </motion.div>
         </div>
 
-        {/* Add Button */}
         <div className="px-4 -mt-4 mb-4">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -221,7 +218,6 @@ export default function PetugasPage() {
           </motion.div>
         </div>
 
-        {/* Content */}
         <div className="px-4 space-y-4">
           {isLoading ? (
             <div className="text-center py-12">
@@ -240,7 +236,6 @@ export default function PetugasPage() {
             </InfoCard>
           ) : (
             <>
-              {/* Active Petugas */}
               {activePetugas.length > 0 && (
                 <div className="space-y-3">
                   <h3 className="text-sm font-semibold text-gray-700 px-1">
@@ -277,7 +272,6 @@ export default function PetugasPage() {
                 </div>
               )}
 
-              {/* Inactive Petugas */}
               {inactivePetugas.length > 0 && (
                 <div className="space-y-3">
                   <h3 className="text-sm font-semibold text-gray-700 px-1">
@@ -318,7 +312,6 @@ export default function PetugasPage() {
         </div>
       </div>
 
-      {/* Modals */}
       <PetugasFormModal
         isOpen={formModal.isOpen}
         onClose={() => setFormModal({ isOpen: false, mode: 'create' })}

@@ -5,7 +5,6 @@ import { db, transaksi, penabung, users } from '@/lib/db'
 import { eq, and, gte, lte, sql, desc } from 'drizzle-orm'
 import { formatDateForDB } from '@/lib/utils/timezone'
 
-// GET - Generate laporan based on type
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -14,7 +13,7 @@ export async function GET(request: NextRequest) {
     }
 
     const searchParams = request.nextUrl.searchParams
-    const type = searchParams.get('type') // keseluruhan | per-warga | keuangan | per-petugas
+    const type = searchParams.get('type') 
     const startDate = searchParams.get('startDate')
     const endDate = searchParams.get('endDate')
     const penabungId = searchParams.get('penabungId')
@@ -27,11 +26,9 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // ✅ FIX: Format dates to ensure they're in YYYY-MM-DD format
     const formattedStartDate = startDate ? formatDateForDB(startDate) : null
     const formattedEndDate = endDate ? formatDateForDB(endDate) : null
 
-    // Laporan Keseluruhan Warga
     if (type === 'keseluruhan') {
       let conditions: any[] = []
 
@@ -74,7 +71,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ data: result, total })
     }
 
-    // Laporan Per Warga
     if (type === 'per-warga') {
       if (!penabungId) {
         return NextResponse.json(
@@ -113,7 +109,6 @@ export async function GET(request: NextRequest) {
         0
       )
 
-      // Get penabung info
       const [penabungInfo] = await db
         .select()
         .from(penabung)
@@ -123,7 +118,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ data: result, total, penabung: penabungInfo })
     }
 
-    // Laporan Keuangan
     if (type === 'keuangan') {
       let conditions: any[] = []
 
@@ -155,7 +149,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ data: result, grandTotal })
     }
 
-    // Laporan Per Petugas (Admin Only)
     if (type === 'per-petugas') {
       if (session.user.role !== 'admin') {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
@@ -198,7 +191,6 @@ export async function GET(request: NextRequest) {
         0
       )
 
-      // Get petugas info
       const [petugasInfo] = await db
         .select()
         .from(users)

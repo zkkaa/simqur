@@ -13,12 +13,10 @@ import {
 } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 
-// Enums
 export const roleEnum = pgEnum('role', ['admin', 'petugas'])
 export const metodeBayarEnum = pgEnum('metode_bayar', ['tunai', 'transfer'])
 export const actionEnum = pgEnum('action', ['create', 'update', 'delete', 'login', 'logout'])
 
-// Users Table (untuk authentication)
 export const users = pgTable('users', {
   id: uuid('id').defaultRandom().primaryKey(),
   email: varchar('email', { length: 255 }).notNull().unique(),
@@ -32,7 +30,6 @@ export const users = pgTable('users', {
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 })
 
-// Penabung Table
 export const penabung = pgTable('penabung', {
   id: uuid('id').defaultRandom().primaryKey(),
   nama: varchar('nama', { length: 255 }).notNull().unique(),
@@ -45,7 +42,6 @@ export const penabung = pgTable('penabung', {
   updatedBy: uuid('updated_by').references(() => users.id),
 })
 
-// Transaksi Table
 export const transaksi = pgTable('transaksi', {
   id: uuid('id').defaultRandom().primaryKey(),
   penabungId: uuid('penabung_id').notNull().references(() => penabung.id, { onDelete: 'cascade' }),
@@ -56,7 +52,6 @@ export const transaksi = pgTable('transaksi', {
   createdAt: timestamp('created_at').notNull().defaultNow(),
 })
 
-// Penarikan Qurban Table
 export const penarikanQurban = pgTable('penarikan_qurban', {
   id: uuid('id').defaultRandom().primaryKey(),
   penabungId: uuid('penabung_id').notNull().references(() => penabung.id),
@@ -69,7 +64,6 @@ export const penarikanQurban = pgTable('penarikan_qurban', {
   createdAt: timestamp('created_at').notNull().defaultNow(),
 })
 
-// Pengaturan Table
 export const pengaturan = pgTable('pengaturan', {
   id: uuid('id').defaultRandom().primaryKey(),
   key: varchar('key', { length: 100 }).notNull().unique(),
@@ -78,7 +72,6 @@ export const pengaturan = pgTable('pengaturan', {
   updatedBy: uuid('updated_by').references(() => users.id),
 })
 
-// Activity Log Table
 export const activityLog = pgTable('activity_log', {
   id: uuid('id').defaultRandom().primaryKey(),
   userId: uuid('user_id').references(() => users.id),
@@ -93,7 +86,6 @@ export const activityLog = pgTable('activity_log', {
   createdAt: timestamp('created_at').notNull().defaultNow(),
 })
 
-// Relations
 export const usersRelations = relations(users, ({ many, one }) => ({
   transaksiCreated: many(transaksi),
   penabungCreated: many(penabung, { relationName: 'createdBy' }),

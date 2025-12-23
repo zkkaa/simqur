@@ -15,7 +15,6 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
   const [animationData, setAnimationData] = useState(null)
   const [showFirstText, setShowFirstText] = useState(true)
 
-  // Load animation JSON
   useEffect(() => {
     fetch('/json/cow.json')
       .then((res) => res.json())
@@ -23,7 +22,6 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
       .catch((err) => console.error('Failed to load animation:', err))
   }, [])
 
-  // Progress counter
   useEffect(() => {
     const interval = setInterval(() => {
       setPercent((prev) => {
@@ -38,19 +36,16 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
     return () => clearInterval(interval)
   }, [])
 
-  // Switch text after 3 seconds
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowFirstText(false)
-    }, 4000) // Text 1 tampil selama 3 detik
+    }, 4000) 
 
     return () => clearTimeout(timer)
   }, [])
 
-  // Redirect when 100%
   useEffect(() => {
     if (percent >= 100) {
-      // Delay sedikit untuk smooth transition
       setTimeout(() => {
         onComplete()
       }, 500)
@@ -67,7 +62,6 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
 
   return (
     <main className="fixed w-screen h-screen flex flex-col items-center justify-center p-6 bg-primary-500 overflow-hidden">
-      {/* Decorative Background Elements */}
       <motion.div
         animate={{
           scale: [1, 1.1, 1],
@@ -94,11 +88,9 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
       />
 
       <div className="flex flex-col items-center justify-center w-full space-y-8 relative z-10">
-        {/* Text Container with AnimatePresence for smooth transitions */}
         <div className="min-h-[120px] flex items-center justify-center">
           <AnimatePresence mode="wait">
             {showFirstText ? (
-              // Text 1: Selamat Datang di Simqur
               <motion.div
                 key="text1"
                 initial={{ opacity: 0, x: -50 }}
@@ -116,7 +108,6 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
                 </h1>
               </motion.div>
             ) : (
-              // Text 2: Sistem Manajemen Qurban + Desa
               <motion.div
                 key="text2"
                 initial={{ opacity: 0, y: 30 }}
@@ -144,7 +135,6 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
           </AnimatePresence>
         </div>
 
-        {/* Lottie Animation */}
         <motion.div
           initial={{ opacity: 0, scale: 0 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -167,7 +157,6 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         </motion.div>
       </div>
 
-      {/* Progress Percentage */}
       <div className="absolute bottom-28 text-center">
         <motion.div
           initial={{ opacity: 0 }}
@@ -177,7 +166,6 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
           <p className="text-2xl md:text-3xl font-bold text-white mb-2">
             {percent}%
           </p>
-          {/* Progress Bar */}
           <div className="w-48 md:w-64 h-2 bg-white/30 rounded-full overflow-hidden mx-auto backdrop-blur-sm">
             <motion.div
               className="h-full bg-white rounded-full shadow-lg"
@@ -189,7 +177,6 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         </motion.div>
       </div>
 
-      {/* Version Text */}
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

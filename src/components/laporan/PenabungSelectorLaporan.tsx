@@ -27,10 +27,8 @@ export default function PenabungSelectorLaporan({
 
   const { data: penabungList, isLoading } = usePenabung(search, 'all')
 
-  // Get selected penabung
   const selectedPenabung = penabungList?.find((p) => p.id === value)
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -64,7 +62,6 @@ export default function PenabungSelectorLaporan({
         Pilih Penabung <span className="text-error">*</span>
       </label>
 
-      {/* Selected Penabung */}
       {selectedPenabung ? (
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
@@ -98,7 +95,6 @@ export default function PenabungSelectorLaporan({
         </motion.div>
       ) : (
         <div className="relative">
-          {/* Search Input */}
           <div className="relative">
             <MagnifyingGlass
               weight="bold"
@@ -126,7 +122,6 @@ export default function PenabungSelectorLaporan({
             />
           </div>
 
-          {/* Dropdown */}
           <AnimatePresence>
             {isOpen && !disabled && (
               <motion.div

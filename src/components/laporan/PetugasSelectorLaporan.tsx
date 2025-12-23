@@ -27,16 +27,13 @@ export default function PetugasSelectorLaporan({
 
   const { data: petugasList, isLoading } = usePetugas()
 
-  // Filter petugas berdasarkan search
   const filteredPetugas = petugasList?.filter((p) =>
     p.namaLengkap.toLowerCase().includes(search.toLowerCase()) ||
     p.email.toLowerCase().includes(search.toLowerCase())
   )
 
-  // Get selected petugas
   const selectedPetugas = petugasList?.find((p) => p.id === value)
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -70,7 +67,6 @@ export default function PetugasSelectorLaporan({
         Pilih Petugas <span className="text-error">*</span>
       </label>
 
-      {/* Selected Petugas */}
       {selectedPetugas ? (
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
@@ -117,7 +113,6 @@ export default function PetugasSelectorLaporan({
         </motion.div>
       ) : (
         <div className="relative">
-          {/* Search Input */}
           <div className="relative">
             <MagnifyingGlass
               weight="bold"
@@ -145,7 +140,6 @@ export default function PetugasSelectorLaporan({
             />
           </div>
 
-          {/* Dropdown */}
           <AnimatePresence>
             {isOpen && !disabled && (
               <motion.div

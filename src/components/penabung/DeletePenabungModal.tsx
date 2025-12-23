@@ -28,7 +28,6 @@ export default function DeletePenabungModal({
 
   const handleFinalConfirm = () => {
     onConfirm()
-    // Reset state after confirmation
     setTimeout(() => {
       setStep(1)
       setConfirmText('')
@@ -52,14 +51,12 @@ export default function DeletePenabungModal({
       closeOnOverlayClick={!isLoading}
     >
       <div className="text-center">
-        {/* Icon */}
         <div className="mx-auto w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mb-4">
           <WarningCircle weight="fill" className="w-10 h-10 text-red-600" />
         </div>
 
         {step === 1 ? (
           <>
-            {/* Step 1: First Confirmation */}
             <h3 className="text-xl font-bold text-gray-900 mb-2">
               Konfirmasi Hapus Penabung
             </h3>
@@ -89,7 +86,6 @@ export default function DeletePenabungModal({
           </>
         ) : (
           <>
-            {/* Step 2: Final Confirmation */}
             <h3 className="text-xl font-bold text-red-600 mb-2">
               Konfirmasi Akhir
             </h3>

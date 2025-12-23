@@ -25,7 +25,6 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 
-// Validation schemas
 const profilSchema = z.object({
   namaLengkap: z.string().min(3, 'Nama minimal 3 karakter'),
   noTelp: z.string().optional(),
@@ -149,7 +148,6 @@ export default function ProfilPage() {
       />
 
       <div className="max-w-sm mx-auto">
-        {/* Header */}
         <div className="bg-gradient-to-br from-primary-600 to-primary-700 px-4 pt-8 pb-20 rounded-b-3xl shadow-lg relative">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -166,7 +164,6 @@ export default function ProfilPage() {
             <Logo size="md" showText={false} />
           </motion.div>
 
-          {/* Profile Avatar */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -179,9 +176,7 @@ export default function ProfilPage() {
           </motion.div>
         </div>
 
-        {/* Content */}
         <div className="px-4 mt-16 space-y-4">
-          {/* User Info Card */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -203,7 +198,6 @@ export default function ProfilPage() {
 
             {!editMode ? (
               <>
-                {/* Display Mode */}
                 <div className="space-y-3 pt-4 border-t border-gray-100">
                   <div className="flex items-start gap-3">
                     <Envelope
@@ -244,7 +238,6 @@ export default function ProfilPage() {
               </>
             ) : (
               <>
-                {/* Edit Mode */}
                 <form
                   onSubmit={handleSubmitProfil(handleUpdateProfile)}
                   className="space-y-4 pt-4 border-t border-gray-100"
@@ -292,7 +285,6 @@ export default function ProfilPage() {
             )}
           </motion.div>
 
-          {/* Change Password Card */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

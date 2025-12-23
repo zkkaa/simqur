@@ -42,7 +42,7 @@ export default function ProsesQurbanModal({
     resolver: zodResolver(prosesSchema),
     defaultValues: {
       jumlahOrang: 1,
-      nominalPerOrang: 3600000, // Default harga qurban
+      nominalPerOrang: 3600000, 
     },
   })
 
@@ -72,7 +72,6 @@ export default function ProsesQurbanModal({
       size="sm"
     >
       <form onSubmit={handleSubmit(handleConfirm)} className="space-y-4">
-        {/* Penabung Info */}
         <div className="bg-primary-50 rounded-xl p-4">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center">
@@ -91,7 +90,6 @@ export default function ProsesQurbanModal({
           </div>
         </div>
 
-        {/* Form Inputs */}
         <Input
           {...register('jumlahOrang', { valueAsNumber: true })}
           type="number"
@@ -115,7 +113,6 @@ export default function ProsesQurbanModal({
           required
         />
 
-        {/* Calculation Summary */}
         <div className="bg-gray-50 rounded-xl p-4 space-y-2">
           <div className="flex justify-between text-sm">
             <span className="text-gray-600">Total Penarikan</span>
@@ -135,7 +132,6 @@ export default function ProsesQurbanModal({
           </div>
         </div>
 
-        {/* Warning if insufficient */}
         {saldoSisa < 0 && (
           <div className="bg-error/10 border border-error/20 rounded-xl p-3">
             <p className="text-sm text-error font-medium">
@@ -144,7 +140,6 @@ export default function ProsesQurbanModal({
           </div>
         )}
 
-        {/* Actions */}
         <div className="flex gap-3 pt-2">
           <Button
             type="button"

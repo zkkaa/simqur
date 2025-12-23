@@ -14,14 +14,12 @@ export function useAuth() {
   const signOut = async () => {
     try {
       setIsSigningOut(true)
-      // ✅ FIX: Gunakan callbackUrl relatif, bukan absolute
       await nextAuthSignOut({ 
         redirect: true,
-        callbackUrl: '/login' // Relatif path, bukan localhost:3000/login
+        callbackUrl: '/login' 
       })
     } catch (error) {
       console.error('Logout error:', error)
-      // Fallback jika gagal
       router.push('/login')
       router.refresh()
     } finally {

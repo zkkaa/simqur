@@ -12,7 +12,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Only admin can access dashboard
     if (session.user.role !== 'admin') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
@@ -21,7 +20,6 @@ export async function GET(request: NextRequest) {
     const month = parseInt(searchParams.get('month') || String(new Date().getMonth() + 1))
     const year = parseInt(searchParams.get('year') || String(new Date().getFullYear()))
 
-    // 1. Get Statistics
     const [stats] = await db
       .select({
         totalPenabung: sql<number>`count(distinct ${penabung.id})`,
@@ -31,7 +29,6 @@ export async function GET(request: NextRequest) {
       .from(penabung)
       .where(isNull(penabung.deletedAt))
 
-    // 2. Get Total Petugas
     const [petugasStats] = await db
       .select({
         totalPetugas: sql<number>`count(*)`,
@@ -39,7 +36,6 @@ export async function GET(request: NextRequest) {
       .from(users)
       .where(eq(users.role, 'petugas'))
 
-    // 3. Get Target Qurban from Settings
     const [targetSetting] = await db
       .select()
       .from(pengaturan)
@@ -48,8 +44,6 @@ export async function GET(request: NextRequest) {
 
     const targetQurban = targetSetting ? parseInt(targetSetting.value) : 3600000
 
-    // 4. Get Chart Data - Daily income for selected month
-    // ✅ FIX: Gunakan getMonthRange untuk tanggal yang benar
     const { start: startDate, end: endDate } = getMonthRange(month, year)
 
     const chartData = await db
@@ -68,7 +62,6 @@ export async function GET(request: NextRequest) {
       .groupBy(transaksi.tanggal)
       .orderBy(transaksi.tanggal)
 
-    // 5. Get Recent Penabung Lunas (5 latest)
     const recentLunas = await db
       .select({
         id: penabung.id,
@@ -86,7 +79,6 @@ export async function GET(request: NextRequest) {
       .orderBy(sql`${penabung.updatedAt} desc`)
       .limit(5)
 
-    // 6. Get Recent Transactions (5 latest)
     const recentTransaksi = await db
       .select({
         id: transaksi.id,

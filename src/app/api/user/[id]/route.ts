@@ -5,7 +5,6 @@ import { db, users } from '@/lib/db'
 import { eq } from 'drizzle-orm'
 import { logActivity, getClientIp } from '@/lib/utils/activity-logger'
 
-// PUT - Update user profile
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -20,12 +19,10 @@ export async function PUT(
     const body = await request.json()
     const { namaLengkap, noTelp } = body
 
-    // Check permission: user can only update their own profile
     if (session.user.id !== id && session.user.role !== 'admin') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    // Validation
     if (!namaLengkap || namaLengkap.length < 3) {
       return NextResponse.json(
         { error: 'Nama lengkap minimal 3 karakter' },
@@ -33,7 +30,6 @@ export async function PUT(
       )
     }
 
-    // Get old data for logging
     const [oldData] = await db
       .select()
       .from(users)
@@ -47,7 +43,6 @@ export async function PUT(
       )
     }
 
-    // Update user
     const [updated] = await db
       .update(users)
       .set({
@@ -58,7 +53,6 @@ export async function PUT(
       .where(eq(users.id, id))
       .returning()
 
-    // Log activity
     await logActivity({
       userId: session.user.id,
       userRole: session.user.role,

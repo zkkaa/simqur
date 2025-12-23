@@ -45,7 +45,6 @@ export default function PetugasCard({
           : 'border-gray-300 bg-gray-50 opacity-75'
       }`}
     >
-      {/* Header */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <div
@@ -80,7 +79,6 @@ export default function PetugasCard({
           </div>
         </div>
 
-        {/* Menu Button */}
         <div className="relative">
           <button
             onClick={() => setShowMenu(!showMenu)}
@@ -89,7 +87,6 @@ export default function PetugasCard({
             <DotsThree weight="bold" className="w-5 h-5 text-gray-600" />
           </button>
 
-          {/* Dropdown Menu */}
           {showMenu && (
             <>
               <div
@@ -140,7 +137,6 @@ export default function PetugasCard({
         </div>
       </div>
 
-      {/* Contact Info */}
       <div className="space-y-2 mb-3">
         <div className="flex items-center gap-2 text-sm text-gray-600">
           <Envelope weight="duotone" className="w-4 h-4" />
@@ -154,7 +150,6 @@ export default function PetugasCard({
         )}
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-2 gap-2 pt-3 border-t border-gray-100">
         <div className="bg-primary-50 rounded-lg p-2">
           <div className="flex items-center gap-1 text-xs text-primary-600 mb-1">
@@ -176,7 +171,6 @@ export default function PetugasCard({
         </div>
       </div>
 
-      {/* Footer */}
       <div className="mt-3 pt-3 border-t border-gray-100">
         <p className="text-xs text-gray-500">
           Terdaftar {formatRelativeDate(petugas.createdAt)}

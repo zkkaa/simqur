@@ -38,7 +38,6 @@ export default function LaporanTypeCard({
           : 'border-gray-200 bg-white hover:border-primary-300'
       )}
     >
-      {/* Admin Badge */}
       {adminOnly && (
         <div className="absolute top-2 right-2">
           
@@ -46,7 +45,6 @@ export default function LaporanTypeCard({
       )}
 
       <div className="flex items-start gap-3">
-        {/* Icon */}
         <div
           className={cn(
             'w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors',
@@ -58,7 +56,6 @@ export default function LaporanTypeCard({
           {icon}
         </div>
 
-        {/* Content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
             <h4

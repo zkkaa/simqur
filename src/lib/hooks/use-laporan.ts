@@ -23,6 +23,6 @@ export function useLaporan(params: LaporanParams, enableQuery: boolean) {
       if (!response.ok) throw new Error('Failed to fetch laporan')
       return response.json()
     },
-    enabled: false, // Don't auto-fetch, wait for user to generate
+    enabled: false,
   })
 }

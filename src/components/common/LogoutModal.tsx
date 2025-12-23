@@ -26,22 +26,18 @@ export default function LogoutModal({
       closeOnOverlayClick={!isLoading}
     >
       <div className="text-center">
-        {/* Icon */}
         <div className="mx-auto w-16 h-16 rounded-full bg-yellow-100 flex items-center justify-center mb-4">
           <WarningCircle weight="fill" className="w-10 h-10 text-yellow-600" />
         </div>
 
-        {/* Title */}
         <h3 className="text-xl font-bold text-gray-900 mb-2">
           Konfirmasi Keluar
         </h3>
 
-        {/* Message */}
         <p className="text-gray-600 mb-6">
           Apakah Anda yakin ingin keluar dari akun <span className="font-semibold">{userName || 'ini'}</span>?
         </p>
 
-        {/* Actions */}
         <div className="flex gap-3">
           <Button
             variant="secondary"

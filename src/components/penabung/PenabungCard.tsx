@@ -42,7 +42,6 @@ export default function PenabungCard({
           </div>
         </div>
 
-        {/* Action Menu */}
         <div className="flex items-center gap-2">
           <Badge variant={penabung.statusLunas ? 'success' : 'default'} size="sm">
             {penabung.statusLunas ? (

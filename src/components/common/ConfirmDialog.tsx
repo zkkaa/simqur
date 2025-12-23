@@ -69,18 +69,14 @@ export default function ConfirmDialog({
       closeOnOverlayClick={!isLoading}
     >
       <div className="text-center">
-        {/* Icon */}
         <div className={`mx-auto w-12 h-12 rounded-full ${config.iconBg} flex items-center justify-center mb-4`}>
           <Icon weight="fill" className={`w-6 h-6 ${config.iconColor}`} />
         </div>
 
-        {/* Title */}
         <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
 
-        {/* Message */}
         <p className="text-sm text-gray-600 mb-6">{message}</p>
 
-        {/* Actions */}
         <div className="flex gap-3">
           <Button
             variant="secondary"

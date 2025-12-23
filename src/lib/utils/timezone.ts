@@ -1,15 +1,6 @@
-/**
- * Timezone Utility untuk Indonesia (WIB/WITA/WIT)
- * Mengatasi masalah UTC vs Local Time
- */
-
-// Indonesia Timezone: WIB (GMT+7)
 const INDONESIA_TIMEZONE = 'Asia/Jakarta'
-const INDONESIA_OFFSET = 7 * 60 // 7 hours in minutes
+const INDONESIA_OFFSET = 7 * 60 
 
-/**
- * Get current date in Indonesia timezone (YYYY-MM-DD format)
- */
 export function getIndonesiaDate(): string {
   const now = new Date()
   const indonesiaTime = new Date(now.toLocaleString('en-US', { timeZone: INDONESIA_TIMEZONE }))
@@ -21,25 +12,16 @@ export function getIndonesiaDate(): string {
   return `${year}-${month}-${day}`
 }
 
-/**
- * Get current datetime in Indonesia timezone
- */
 export function getIndonesiaDateTime(): Date {
   const now = new Date()
   return new Date(now.toLocaleString('en-US', { timeZone: INDONESIA_TIMEZONE }))
 }
 
-/**
- * Convert any date to Indonesia timezone
- */
 export function toIndonesiaDate(date: Date | string): Date {
   const dateObj = typeof date === 'string' ? new Date(date) : date
   return new Date(dateObj.toLocaleString('en-US', { timeZone: INDONESIA_TIMEZONE }))
 }
 
-/**
- * Format date to YYYY-MM-DD in Indonesia timezone
- */
 export function formatDateForDB(date?: Date | string): string {
   const dateObj = date ? (typeof date === 'string' ? new Date(date) : date) : new Date()
   const indonesiaTime = new Date(dateObj.toLocaleString('en-US', { timeZone: INDONESIA_TIMEZONE }))
@@ -51,33 +33,22 @@ export function formatDateForDB(date?: Date | string): string {
   return `${year}-${month}-${day}`
 }
 
-/**
- * Get start and end date for a month in Indonesia timezone
- */
 export function getMonthRange(month: number, year: number) {
-  // Start date: first day of month
   const startDate = new Date(year, month - 1, 1)
   const start = formatDateForDB(startDate)
   
-  // End date: last day of month
   const endDate = new Date(year, month, 0)
   const end = formatDateForDB(endDate)
   
   return { start, end }
 }
 
-/**
- * Check if a date is today in Indonesia timezone
- */
 export function isToday(date: Date | string): boolean {
   const today = getIndonesiaDate()
   const checkDate = formatDateForDB(date)
   return today === checkDate
 }
 
-/**
- * Get day name in Indonesian
- */
 export function getDayName(date: Date | string): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date
   const indonesiaTime = toIndonesiaDate(dateObj)
@@ -86,9 +57,6 @@ export function getDayName(date: Date | string): string {
   return days[indonesiaTime.getDay()]
 }
 
-/**
- * Format time in Indonesia timezone (HH:mm or HH:mm:ss)
- */
 export function formatIndonesiaTime(date: Date | string, includeSeconds = false): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date
   const indonesiaTime = toIndonesiaDate(dateObj)
@@ -104,9 +72,6 @@ export function formatIndonesiaTime(date: Date | string, includeSeconds = false)
   return `${hours}:${minutes}`
 }
 
-/**
- * Format full datetime with day name (e.g., "Senin, 22 Des 2025 09:30")
- */
 export function formatIndonesiaDateTime(date: Date | string, includeTime = true): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date
   const indonesiaTime = toIndonesiaDate(dateObj)

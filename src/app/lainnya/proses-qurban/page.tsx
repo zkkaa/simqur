@@ -47,7 +47,6 @@ export default function ProsesQurbanPage() {
     return <LoadingPage text="Memuat data..." />
   }
 
-  // Redirect if not admin
   if (user?.role !== 'admin') {
     router.push('/lainnya')
     return null
@@ -112,7 +111,6 @@ export default function ProsesQurbanPage() {
       />
 
       <div className="max-w-sm mx-auto">
-        {/* Header */}
         <div className="bg-gradient-to-br from-primary-600 to-primary-700 px-4 pt-8 pb-6 rounded-b-3xl shadow-lg">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -129,7 +127,6 @@ export default function ProsesQurbanPage() {
             <Logo size="md" showText={false} />
           </motion.div>
 
-          {/* Stats */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -148,7 +145,6 @@ export default function ProsesQurbanPage() {
           </motion.div>
         </div>
 
-        {/* Toggle View */}
         <div className="px-4 -mt-3 mb-4">
           <div className="flex gap-2">
             <button
@@ -175,11 +171,9 @@ export default function ProsesQurbanPage() {
           </div>
         </div>
 
-        {/* Content */}
         <div className="px-4 space-y-3">
           {!showHistory ? (
             <>
-              {/* Penabung Lunas List */}
               {!penabungList || penabungList.length === 0 ? (
                 <InfoCard variant="info" title="Belum Ada Penabung Lunas">
                   <p className="text-sm">
@@ -201,7 +195,6 @@ export default function ProsesQurbanPage() {
             </>
           ) : (
             <>
-              {/* History List */}
               {historyLoading ? (
                 <div className="text-center py-12">
                   <p className="text-gray-500">Memuat history...</p>

@@ -70,7 +70,6 @@ export default function Modal({
             onClick={handleOverlayClick}
           />
 
-          {/* Modal Container */}
           <div className="flex min-h-full items-center justify-center p-4">
             <div
               ref={contentRef}
@@ -81,7 +80,6 @@ export default function Modal({
               )}
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Header */}
               {(title || showCloseButton) && (
                 <div className="flex items-start justify-between p-6 border-b border-gray-200">
                   <div className="flex-1">
@@ -106,10 +104,8 @@ export default function Modal({
                 </div>
               )}
 
-              {/* Body */}
               <div className="p-6">{children}</div>
 
-              {/* Footer */}
               {footer && (
                 <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
                   {footer}

@@ -35,7 +35,6 @@ export default function LainnyaPage() {
     await signOut({ callbackUrl: '/login' })
   }
 
-  // Menu untuk Admin
   const adminMenus = [
     {
       icon: <CurrencyCircleDollar weight="duotone" className="w-6 h-6" />,
@@ -60,7 +59,6 @@ export default function LainnyaPage() {
     },
   ]
 
-  // Menu untuk Semua User
   const commonMenus = [
     {
       icon: <User weight="duotone" className="w-6 h-6" />,
@@ -87,7 +85,6 @@ export default function LainnyaPage() {
       />
 
       <div className="max-w-sm mx-auto">
-        {/* Header */}
         <div className="bg-gradient-to-br from-primary-600 to-primary-700 px-4 pt-8 pb-6 rounded-b-3xl shadow-lg">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -111,7 +108,6 @@ export default function LainnyaPage() {
             <Logo size="lg" showText={false} />
           </motion.div>
 
-          {/* User Info Card */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -138,7 +134,6 @@ export default function LainnyaPage() {
           </motion.div>
         </div>
 
-        {/* Menu Grid */}
         <div className="px-4 mt-6 space-y-3">
           {menus.map((menu, index) => (
             <motion.button
@@ -161,7 +156,6 @@ export default function LainnyaPage() {
             </motion.button>
           ))}
 
-          {/* Logout Button */}
           <motion.button
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -181,7 +175,6 @@ export default function LainnyaPage() {
           </motion.button>
         </div>
 
-        {/* Footer Info */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

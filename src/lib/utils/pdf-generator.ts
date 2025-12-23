@@ -9,7 +9,6 @@ export function generateLaporanKeseluruhanPDF(
 ) {
   const doc = new jsPDF()
 
-  // Header
   doc.setFontSize(18)
   doc.text('SIMQUR', 14, 15)
   doc.setFontSize(10)
@@ -20,7 +19,6 @@ export function generateLaporanKeseluruhanPDF(
   doc.setFontSize(10)
   doc.text(`Periode: ${period}`, 14, 42)
 
-  // Table
   autoTable(doc, {
     startY: 50,
     head: [['No', 'Tanggal', 'Penabung', 'Petugas', 'Nominal', 'Metode']],
@@ -47,7 +45,6 @@ export function generateLaporanKeseluruhanPDF(
     },
   })
 
-  // Footer
   const pageCount = (doc as any).internal.getNumberOfPages()
   doc.setFontSize(8)
   doc.text(
@@ -72,7 +69,6 @@ export function generateLaporanPerWargaPDF(
 ) {
   const doc = new jsPDF()
 
-  // Header
   doc.setFontSize(18)
   doc.text('SIMQUR', 14, 15)
   doc.setFontSize(10)
@@ -89,7 +85,6 @@ export function generateLaporanPerWargaPDF(
     54
   )
 
-  // Table
   autoTable(doc, {
     startY: 62,
     head: [['No', 'Tanggal', 'Petugas', 'Nominal', 'Metode']],
@@ -115,7 +110,6 @@ export function generateLaporanPerWargaPDF(
     },
   })
 
-  // Footer
   const pageCount = (doc as any).internal.getNumberOfPages()
   doc.setFontSize(8)
   doc.text(
@@ -139,7 +133,6 @@ export function generateLaporanKeuanganPDF(
 ) {
   const doc = new jsPDF()
 
-  // Header
   doc.setFontSize(18)
   doc.text('SIMQUR', 14, 15)
   doc.setFontSize(10)
@@ -150,7 +143,6 @@ export function generateLaporanKeuanganPDF(
   doc.setFontSize(10)
   doc.text(`Periode: ${period}`, 14, 42)
 
-  // Table
   autoTable(doc, {
     startY: 50,
     head: [['No', 'Tanggal', 'Jumlah Transaksi', 'Total Nominal']],
@@ -175,7 +167,6 @@ export function generateLaporanKeuanganPDF(
     },
   })
 
-  // Footer
   const pageCount = (doc as any).internal.getNumberOfPages()
   doc.setFontSize(8)
   doc.text(
@@ -200,7 +191,6 @@ export function generateLaporanPerPetugasPDF(
 ) {
   const doc = new jsPDF()
 
-  // Header
   doc.setFontSize(18)
   doc.text('SIMQUR', 14, 15)
   doc.setFontSize(10)
@@ -213,7 +203,6 @@ export function generateLaporanPerPetugasPDF(
   doc.text(`Email: ${petugas?.email || '-'}`, 14, 48)
   doc.text(`Periode: ${period}`, 14, 54)
 
-  // Table
   autoTable(doc, {
     startY: 62,
     head: [['No', 'Tanggal', 'Penabung', 'Nominal', 'Metode']],
@@ -239,7 +228,6 @@ export function generateLaporanPerPetugasPDF(
     },
   })
 
-  // Footer
   const pageCount = (doc as any).internal.getNumberOfPages()
   doc.setFontSize(8)
   doc.text(

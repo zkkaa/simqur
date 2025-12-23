@@ -1,7 +1,6 @@
 import { defineConfig } from 'drizzle-kit';
 import * as dotenv from 'dotenv';
 
-// Muat file .env secara eksplisit
 dotenv.config({ path: '.env' });
 
 export default defineConfig({

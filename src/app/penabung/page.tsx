@@ -144,7 +144,6 @@ export default function PenabungPage() {
       />
 
       <div className="max-w-sm mx-auto">
-        {/* Header */}
         <div className="bg-gradient-to-br from-primary-600 to-primary-700 px-4 pt-8 pb-6 rounded-b-3xl shadow-lg">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -165,7 +164,6 @@ export default function PenabungPage() {
             <Logo size="lg" showText={false} />
           </motion.div>
 
-          {/* Search */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -180,9 +178,7 @@ export default function PenabungPage() {
           </motion.div>
         </div>
 
-        {/* Toolbar */}
         <div className="px-4 -mt-4 mb-4 space-y-3">
-          {/* Filter Buttons */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -204,7 +200,6 @@ export default function PenabungPage() {
             ))}
           </motion.div>
 
-          {/* Add Button */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -223,7 +218,6 @@ export default function PenabungPage() {
           </motion.div>
         </div>
 
-        {/* Content */}
         <div className="px-4 space-y-3">
           {isLoading ? (
             <div className="text-center py-12">
@@ -268,7 +262,6 @@ export default function PenabungPage() {
         </div>
       </div>
 
-      {/* Modals */}
       <PenabungFormModal
         isOpen={formModal.isOpen}
         onClose={() => setFormModal({ isOpen: false, mode: 'create' })}

@@ -6,7 +6,6 @@ import { eq, desc } from 'drizzle-orm'
 import { logActivity, getClientIp } from '@/lib/utils/activity-logger'
 import { getIndonesiaDate } from '@/lib/utils/timezone'
 
-// GET - Get all proses qurban history
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -14,7 +13,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Admin only
     if (session.user.role !== 'admin') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
@@ -51,7 +49,6 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST - Create new proses qurban
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -59,7 +56,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Admin only
     if (session.user.role !== 'admin') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
@@ -67,7 +63,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { penabungId, jumlahOrang, nominalPerOrang } = body
 
-    // Validation
     if (!penabungId || !jumlahOrang || !nominalPerOrang) {
       return NextResponse.json(
         { error: 'Semua field harus diisi' },
@@ -89,7 +84,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get penabung data
     const [penabungData] = await db
       .select()
       .from(penabung)
@@ -103,11 +97,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Calculate total
     const totalPenarikan = jumlahOrang * nominalPerOrang
     const saldoSekarang = parseFloat(penabungData.totalSaldo)
 
-    // Check if saldo sufficient
     if (saldoSekarang < totalPenarikan) {
       return NextResponse.json(
         { error: 'Saldo tidak mencukupi' },
@@ -115,7 +107,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // ✅ FIX: Gunakan timezone Indonesia
     const tahunPeriode = new Date().getFullYear()
     const tanggalProses = getIndonesiaDate()
 
@@ -132,9 +123,8 @@ export async function POST(request: NextRequest) {
       })
       .returning()
 
-    // Update saldo penabung
     const newSaldo = saldoSekarang - totalPenarikan
-    const statusLunas = newSaldo >= 3600000 // TODO: Get from settings
+    const statusLunas = newSaldo >= 3600000 
 
     await db
       .update(penabung)
@@ -146,7 +136,6 @@ export async function POST(request: NextRequest) {
       })
       .where(eq(penabung.id, penabungId))
 
-    // Log activity
     await logActivity({
       userId: session.user.id,
       userRole: session.user.role,

@@ -26,7 +26,6 @@ export default function PenabungAutocomplete({
 
   const { data: penabungList, isLoading } = usePenabung(search, 'all')
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -60,7 +59,6 @@ export default function PenabungAutocomplete({
         Pilih Penabung <span className="text-error">*</span>
       </label>
 
-      {/* Selected Penabung */}
       {value ? (
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
@@ -109,7 +107,6 @@ export default function PenabungAutocomplete({
         </motion.div>
       ) : (
         <div className="relative">
-          {/* Search Input */}
           <div className="relative">
             <MagnifyingGlass
               weight="bold"
@@ -137,7 +134,6 @@ export default function PenabungAutocomplete({
             />
           </div>
 
-          {/* Dropdown */}
           <AnimatePresence>
             {isOpen && !disabled && (
               <motion.div

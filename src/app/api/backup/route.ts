@@ -7,7 +7,6 @@ import * as XLSX from 'xlsx'
 import { formatCurrency, formatDate } from '@/lib/utils/format'
 import { logActivity, getClientIp } from '@/lib/utils/activity-logger'
 
-// GET - Backup all data to Excel
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -15,12 +14,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Admin only
     if (session.user.role !== 'admin') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    // Fetch all data
     const [penabungData, transaksiData, usersData, pengaturanData] =
       await Promise.all([
         db.select().from(penabung).orderBy(penabung.nama),
@@ -46,10 +43,8 @@ export async function GET(request: NextRequest) {
         db.select().from(pengaturan),
       ])
 
-    // Create workbook
     const workbook = XLSX.utils.book_new()
 
-    // Sheet 1: Penabung
     const penabungSheet = XLSX.utils.aoa_to_sheet([
       ['DATA PENABUNG'],
       [`Backup: ${formatDate(new Date(), 'dd MMMM yyyy HH:mm')}`],
@@ -74,7 +69,6 @@ export async function GET(request: NextRequest) {
     ]
     XLSX.utils.book_append_sheet(workbook, penabungSheet, 'Penabung')
 
-    // Sheet 2: Transaksi
     const transaksiSheet = XLSX.utils.aoa_to_sheet([
       ['DATA TRANSAKSI'],
       [`Backup: ${formatDate(new Date(), 'dd MMMM yyyy HH:mm')}`],
@@ -101,7 +95,6 @@ export async function GET(request: NextRequest) {
     ]
     XLSX.utils.book_append_sheet(workbook, transaksiSheet, 'Transaksi')
 
-    // Sheet 3: Petugas
     const petugasSheet = XLSX.utils.aoa_to_sheet([
       ['DATA PETUGAS'],
       [`Backup: ${formatDate(new Date(), 'dd MMMM yyyy HH:mm')}`],
@@ -128,7 +121,6 @@ export async function GET(request: NextRequest) {
     ]
     XLSX.utils.book_append_sheet(workbook, petugasSheet, 'Petugas')
 
-    // Sheet 4: Pengaturan
     const pengaturanSheet = XLSX.utils.aoa_to_sheet([
       ['PENGATURAN SISTEM'],
       [`Backup: ${formatDate(new Date(), 'dd MMMM yyyy HH:mm')}`],
@@ -143,10 +135,8 @@ export async function GET(request: NextRequest) {
     pengaturanSheet['!cols'] = [{ wch: 20 }, { wch: 20 }, { wch: 18 }]
     XLSX.utils.book_append_sheet(workbook, pengaturanSheet, 'Pengaturan')
 
-    // Convert to buffer
     const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' })
 
-    // Log activity
     await logActivity({
       userId: session.user.id,
       userRole: session.user.role,
@@ -156,7 +146,6 @@ export async function GET(request: NextRequest) {
       ipAddress: getClientIp(request),
     })
 
-    // Return file
     return new NextResponse(buffer, {
       headers: {
         'Content-Type':

@@ -24,7 +24,6 @@ export default function NumericKeypad({ onPress, onClear, onDelete }: NumericKey
         </motion.button>
       ))}
       
-      {/* Tombol Backspace */}
       <motion.button
         whileTap={{ scale: 0.95 }}
         type="button"

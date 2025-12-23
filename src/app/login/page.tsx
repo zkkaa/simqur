@@ -15,7 +15,6 @@ import Logo from '@/components/common/Logo'
 import SplashScreen from '@/components/SplashScreen'
 import { SignIn, Eye, EyeSlash, Key, LockKey } from '@phosphor-icons/react'
 
-// Validation schema
 const loginSchema = z.object({
   email: z.string().email('Email tidak valid'),
   password: z.string().min(6, 'Password minimal 6 karakter'),
@@ -55,7 +54,6 @@ export default function LoginPage() {
     resolver: zodResolver(loginSchema),
   })
 
-  // Check if user is already authenticated
   useEffect(() => {
     if (status === 'authenticated') {
       setShowSplash(false)
@@ -63,11 +61,9 @@ export default function LoginPage() {
     }
   }, [status])
 
-  // Handle splash complete
   const handleSplashComplete = () => {
     setShowSplash(false)
     
-    // Animate login form entrance
     setTimeout(() => {
       setShowLogin(true)
       
@@ -118,7 +114,6 @@ export default function LoginPage() {
           variant: 'success',
         })
 
-        // Delay redirect untuk show toast
         setTimeout(() => {
           router.push(callbackUrl)
           router.refresh()
@@ -136,17 +131,14 @@ export default function LoginPage() {
     }
   }
 
-  // Show splash screen
   if (showSplash) {
     return <SplashScreen onComplete={handleSplashComplete} />
   }
 
-  // Don't show login if authenticated
   if (status === 'authenticated') {
     return null
   }
 
-  // Show login form
   if (!showLogin) {
     return null
   }
@@ -156,7 +148,6 @@ export default function LoginPage() {
       ref={containerRef}
       className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 flex items-center justify-center p-4 relative overflow-hidden"
     >
-      {/* Animated Background Elements */}
       <motion.div
         animate={{
           scale: [1, 1.2, 1],
@@ -191,14 +182,11 @@ export default function LoginPage() {
         duration={3000}
       />
 
-      {/* Mobile-First Container: max-w-sm (384px) */}
       <div className="w-full max-w-sm relative z-10">
-        {/* Card */}
         <div 
           ref={cardRef} 
           className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 space-y-6 border border-white/20"
         >
-          {/* Logo */}
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
@@ -207,7 +195,6 @@ export default function LoginPage() {
             <Logo size="lg" />
           </motion.div>
 
-          {/* Login Form */}
           <motion.form
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -268,7 +255,6 @@ export default function LoginPage() {
             </motion.div>
           </motion.form>
 
-          {/* Footer Info */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -281,7 +267,6 @@ export default function LoginPage() {
           </motion.div>
         </div>
 
-        {/* Version */}
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

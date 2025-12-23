@@ -6,7 +6,6 @@ import { eq, desc } from 'drizzle-orm'
 import { logActivity, getClientIp } from '@/lib/utils/activity-logger'
 import { getIndonesiaDate } from '@/lib/utils/timezone'
 
-// GET - Fetch transaksi (with filters)
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -36,11 +35,9 @@ export async function GET(request: NextRequest) {
       .orderBy(desc(transaksi.createdAt))
       .$dynamic()
 
-    // Filter by date (default: today in Indonesia timezone)
     const filterDate = date || getIndonesiaDate()
     query = query.where(eq(transaksi.tanggal, filterDate))
 
-    // Filter by penabungId
     if (penabungId) {
       query = query.where(eq(transaksi.penabungId, penabungId))
     }
@@ -57,7 +54,6 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST - Create new transaksi
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -68,7 +64,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { penabungId, nominal, metodeBayar } = body
 
-    // Validation
     if (!penabungId || !nominal || !metodeBayar) {
       return NextResponse.json(
         { error: 'Semua field harus diisi' },
@@ -90,7 +85,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get penabung data
     const [penabungData] = await db
       .select()
       .from(penabung)
@@ -104,26 +98,22 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // PERBAIKAN: Gunakan tanggal Indonesia timezone
     const todayIndonesia = getIndonesiaDate()
 
-    // Create transaksi
     const [newTransaksi] = await db
       .insert(transaksi)
       .values({
         penabungId,
         nominal: nominal.toString(),
         metodeBayar,
-        tanggal: todayIndonesia, // ✅ FIX: Gunakan tanggal Indonesia
+        tanggal: todayIndonesia,
         petugasId: session.user.id,
       })
       .returning()
 
-    // Update total saldo penabung
     const newSaldo = parseFloat(penabungData.totalSaldo) + parseFloat(nominal)
     
-    // TODO: Get target from settings
-    const targetQurban = 3600000 // Default 3.6jt
+    const targetQurban = 3600000 
     const statusLunas = newSaldo >= targetQurban
 
     await db
@@ -136,7 +126,6 @@ export async function POST(request: NextRequest) {
       })
       .where(eq(penabung.id, penabungId))
 
-    // Log activity
     await logActivity({
       userId: session.user.id,
       userRole: session.user.role,

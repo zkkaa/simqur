@@ -6,7 +6,6 @@ import { db, users, transaksi } from '@/lib/db'
 import { eq, sql } from 'drizzle-orm'
 import { logActivity, getClientIp } from '@/lib/utils/activity-logger'
 
-// GET - Fetch all petugas with stats (Admin only)
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -14,12 +13,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Admin only
     if (session.user.role !== 'admin') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    // Get all users
     const allUsers = await db
       .select({
         id: users.id,
@@ -33,7 +30,6 @@ export async function GET(request: NextRequest) {
       .from(users)
       .orderBy(users.namaLengkap)
 
-    // Get stats for each user
     const usersWithStats = await Promise.all(
       allUsers.map(async (user) => {
         const [stats] = await db
@@ -62,7 +58,6 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST - Create new petugas (Admin only)
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -70,7 +65,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Admin only
     if (session.user.role !== 'admin') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
@@ -78,7 +72,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { email, password, namaLengkap, noTelp, role } = body
 
-    // Validation
     if (!email || !password || !namaLengkap || !role) {
       return NextResponse.json(
         { error: 'Semua field harus diisi' },
@@ -97,7 +90,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Role tidak valid' }, { status: 400 })
     }
 
-    // Check if email already exists
     const [existingUser] = await db
       .select()
       .from(users)
@@ -111,10 +103,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Hash password
     const hashedPassword = await hashPassword(password)
 
-    // Create user
     const [newUser] = await db
       .insert(users)
       .values({
@@ -128,7 +118,6 @@ export async function POST(request: NextRequest) {
       })
       .returning()
 
-    // Log activity
     await logActivity({
       userId: session.user.id,
       userRole: session.user.role,

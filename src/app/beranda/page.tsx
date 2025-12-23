@@ -40,7 +40,6 @@ export default function BerandaPage() {
     return <LoadingPage text="Memuat..." />
   }
 
-  // Redirect if not admin
   if (user?.role !== 'admin') {
     router.push('/transaksi')
     return null
@@ -49,7 +48,6 @@ export default function BerandaPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pb-24">
       <div className="max-w-sm mx-auto">
-        {/* Header */}
         <div className="bg-gradient-to-br from-primary-600 to-primary-700 px-4 pt-8 pb-6 rounded-b-3xl shadow-lg">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -71,7 +69,6 @@ export default function BerandaPage() {
           </motion.div>
         </div>
 
-        {/* Content */}
         <div className="px-4 -mt-4 space-y-4">
           {isLoading ? (
             <div className="text-center py-12">
@@ -84,7 +81,6 @@ export default function BerandaPage() {
             </InfoCard>
           ) : dashboardData ? (
             <>
-              {/* Statistics Cards */}
               <div className="grid grid-cols-2 gap-3">
                 <StatCard
                   icon={<Users weight="duotone" className="w-6 h-6" />}
@@ -124,7 +120,6 @@ export default function BerandaPage() {
                 />
               </div>
 
-              {/* Pendapatan Chart */}
               <PendapatanChart
                 data={dashboardData.chartData}
                 month={selectedMonth}
@@ -133,10 +128,8 @@ export default function BerandaPage() {
                 onYearChange={setSelectedYear}
               />
 
-              {/* Recent Lunas */}
               <RecentLunasCard data={dashboardData.recentLunas} />
 
-              {/* Recent Transactions */}
               <RecentTransactions data={dashboardData.recentTransaksi} />
             </>
           ) : null}

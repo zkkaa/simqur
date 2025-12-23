@@ -17,7 +17,6 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Email dan password harus diisi')
         }
 
-        // Find user by email
         const [user] = await db
           .select()
           .from(users)
@@ -28,12 +27,10 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Email atau password salah')
         }
 
-        // Check if user is active
         if (!user.isActive) {
           throw new Error('Akun Anda telah dinonaktifkan')
         }
 
-        // Verify password
         const isValid = await bcrypt.compare(credentials.password, user.password)
         if (!isValid) {
           throw new Error('Email atau password salah')
@@ -79,16 +76,12 @@ export const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: 'jwt',
-    // Session akan expire dalam 24 jam (86400 detik)
-    maxAge: 24 * 60 * 60, // 24 hours in seconds
+    maxAge: 24 * 60 * 60,
     
-    // Update session age setiap kali user aktif (optional)
-    // Jika ingin session refresh otomatis saat user aktif, set ke waktu yang lebih pendek
-    updateAge: 0, // Disable auto update, session tetap 24 jam dari login
+    updateAge: 0,
   },
   jwt: {
-    // JWT akan expire dalam 24 jam
-    maxAge: 24 * 60 * 60, // 24 hours in seconds
+    maxAge: 24 * 60 * 60,
   },
   cookies: {
     sessionToken: {
@@ -98,8 +91,7 @@ export const authOptions: NextAuthOptions = {
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
-        // Cookie akan expire dalam 24 jam
-        maxAge: 24 * 60 * 60, // 24 hours in seconds
+        maxAge: 24 * 60 * 60,
       },
     },
   },

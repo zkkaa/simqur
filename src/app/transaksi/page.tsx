@@ -118,7 +118,6 @@ export default function TransaksiPage() {
         variant: 'success',
       })
 
-      // Reset form
       setSelectedPenabung(null)
       setNominal(0)
       setMetodeBayar('tunai')
@@ -146,7 +145,6 @@ export default function TransaksiPage() {
       />
 
       <div className="max-w-sm mx-auto">
-        {/* Header */}
         <div className="bg-gradient-to-br from-primary-600 to-primary-700 px-4 pt-8 pb-6 rounded-b-3xl shadow-lg">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -168,7 +166,6 @@ export default function TransaksiPage() {
             <Logo size="lg" showText={false} />
           </motion.div>
 
-          {/* Today's Summary with Day Name */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -185,7 +182,6 @@ export default function TransaksiPage() {
           </motion.div>
         </div>
 
-        {/* Form */}
         <div className="px-4 -mt-4 space-y-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -320,7 +316,6 @@ export default function TransaksiPage() {
             </Button>
           </motion.div>
 
-          {/* Today's Transactions with Day Name */}
           {transaksiList && transaksiList.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}

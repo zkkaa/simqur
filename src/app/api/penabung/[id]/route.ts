@@ -5,7 +5,6 @@ import { db, penabung } from '@/lib/db'
 import { eq } from 'drizzle-orm'
 import { logActivity, getClientIp } from '@/lib/utils/activity-logger'
 
-// GET - Fetch single penabung
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -36,7 +35,6 @@ export async function GET(
   }
 }
 
-// PATCH - Update penabung
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -57,7 +55,6 @@ export async function PATCH(
       )
     }
 
-    // Get old data for logging
     const [oldData] = await db
       .select()
       .from(penabung)
@@ -68,7 +65,6 @@ export async function PATCH(
       return NextResponse.json({ error: 'Penabung not found' }, { status: 404 })
     }
 
-    // Check duplicate name (exclude current)
     const existing = await db
       .select()
       .from(penabung)
@@ -92,7 +88,6 @@ export async function PATCH(
       .where(eq(penabung.id, params.id))
       .returning()
 
-    // Log activity
     await logActivity({
       userId: session.user.id,
       userRole: session.user.role,
@@ -115,7 +110,6 @@ export async function PATCH(
   }
 }
 
-// DELETE - Soft delete penabung
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -126,12 +120,10 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Only admin can delete
     if (session.user.role !== 'admin') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    // Get data for logging
     const [oldData] = await db
       .select()
       .from(penabung)
@@ -142,7 +134,6 @@ export async function DELETE(
       return NextResponse.json({ error: 'Penabung not found' }, { status: 404 })
     }
 
-    // Soft delete
     await db
       .update(penabung)
       .set({
@@ -150,7 +141,6 @@ export async function DELETE(
       })
       .where(eq(penabung.id, params.id))
 
-    // Log activity
     await logActivity({
       userId: session.user.id,
       userRole: session.user.role,

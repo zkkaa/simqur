@@ -46,7 +46,6 @@ export default function LoadingSpinner({
   return spinner
 }
 
-// Untuk loading state di dalam card/container
 export function LoadingCard({ text = 'Memuat data...' }: { text?: string }) {
   return (
     <div className="bg-white rounded-xl shadow-card border border-gray-100 p-12">
@@ -55,7 +54,6 @@ export function LoadingCard({ text = 'Memuat data...' }: { text?: string }) {
   )
 }
 
-// Untuk loading state halaman penuh
 export function LoadingPage({ text = 'Memuat...' }: { text?: string }) {
   return (
     <div className="min-h-screen flex items-center justify-center">

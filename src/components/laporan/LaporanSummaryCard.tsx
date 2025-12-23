@@ -25,7 +25,6 @@ export default function LaporanSummaryCard({
   const totalTransaksi = data.data?.length || 0
   const totalNominal = data.total || data.grandTotal || 0
 
-  // Additional info per type
   let additionalInfo = null
 
   if (type === 'per-warga' && data.penabung) {
@@ -56,21 +55,17 @@ export default function LaporanSummaryCard({
       animate={{ opacity: 1, y: 0 }}
       className="bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl p-5 shadow-lg"
     >
-      {/* Header */}
       <div className="flex items-center gap-2 mb-4">
         <Receipt weight="duotone" className="w-6 h-6 text-white" />
         <h3 className="text-white font-bold text-lg">Ringkasan Laporan</h3>
       </div>
 
-      {/* Period */}
       <div className="flex items-center gap-2 mb-4 text-primary-100">
         <CalendarBlank weight="duotone" className="w-4 h-4" />
         <p className="text-sm">{period}</p>
       </div>
 
-      {/* Stats Grid */}
       <div className="grid grid-cols-2 gap-3">
-        {/* Total Transaksi */}
         <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3">
           <div className="flex items-center gap-2 mb-1">
             <TrendUp weight="duotone" className="w-5 h-5 text-white" />
@@ -79,7 +74,6 @@ export default function LaporanSummaryCard({
           <p className="text-white text-2xl font-bold">{totalTransaksi}</p>
         </div>
 
-        {/* Total Nominal */}
         <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3">
           <div className="flex items-center gap-2 mb-1">
             <CurrencyCircleDollar weight="duotone" className="w-5 h-5 text-white" />
@@ -91,7 +85,6 @@ export default function LaporanSummaryCard({
         </div>
       </div>
 
-      {/* Additional Info */}
       {additionalInfo}
     </motion.div>
   )

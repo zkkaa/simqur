@@ -66,7 +66,6 @@ export default function PengaturanPage() {
     return <LoadingPage text="Memuat pengaturan..." />
   }
 
-  // Redirect if not admin
   if (user?.role !== 'admin') {
     router.push('/lainnya')
     return null
@@ -123,7 +122,6 @@ export default function PengaturanPage() {
       />
 
       <div className="max-w-sm mx-auto">
-        {/* Header */}
         <div className="bg-gradient-to-br from-primary-600 to-primary-700 px-4 pt-8 pb-6 rounded-b-3xl shadow-lg">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -141,9 +139,7 @@ export default function PengaturanPage() {
           </motion.div>
         </div>
 
-        {/* Content */}
         <div className="px-4 -mt-3 space-y-4">
-          {/* Target Qurban Card */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -234,7 +230,6 @@ export default function PengaturanPage() {
             )}
           </motion.div>
 
-          {/* Backup Data Card */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -276,7 +271,6 @@ export default function PengaturanPage() {
             </Button>
           </motion.div>
 
-          {/* System Info Card */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -313,7 +307,6 @@ export default function PengaturanPage() {
             </div>
           </motion.div>
 
-          {/* Info */}
           <InfoCard variant="info" title="💡 Tips">
             <ul className="text-sm space-y-1">
               <li>• Backup data secara berkala</li>

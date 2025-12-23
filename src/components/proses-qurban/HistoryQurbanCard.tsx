@@ -21,7 +21,6 @@ export default function HistoryQurbanCard({
       transition={{ delay }}
       className="bg-white rounded-xl p-4 shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
     >
-      {/* Header */}
       <div className="flex items-start gap-3 mb-3">
         <div className="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center flex-shrink-0">
           <User weight="duotone" className="w-6 h-6 text-primary-600" />
@@ -42,7 +41,6 @@ export default function HistoryQurbanCard({
         </div>
       </div>
 
-      {/* Details */}
       <div className="space-y-2 mb-3">
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center gap-2 text-gray-600">
@@ -75,7 +73,6 @@ export default function HistoryQurbanCard({
         </div>
       </div>
 
-      {/* Footer */}
       <div className="pt-3 border-t border-gray-100">
         <p className="text-xs text-gray-500">
           Diproses oleh: {history.creator?.namaLengkap || 'Admin'}

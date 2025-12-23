@@ -5,7 +5,6 @@ import { db, penabung } from '@/lib/db'
 import { eq, isNull, like, or } from 'drizzle-orm'
 import { logActivity, getClientIp } from '@/lib/utils/activity-logger'
 
-// GET - Fetch all penabung
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -15,7 +14,7 @@ export async function GET(request: NextRequest) {
 
     const searchParams = request.nextUrl.searchParams
     const search = searchParams.get('search') || ''
-    const filter = searchParams.get('filter') || 'all' // all, lunas, belum-lunas
+    const filter = searchParams.get('filter') || 'all' 
 
     let query = db
       .select()
@@ -23,12 +22,10 @@ export async function GET(request: NextRequest) {
       .where(isNull(penabung.deletedAt))
       .$dynamic()
 
-    // Apply search
     if (search) {
       query = query.where(like(penabung.nama, `%${search}%`))
     }
 
-    // Apply filter
     if (filter === 'lunas') {
       query = query.where(eq(penabung.statusLunas, true))
     } else if (filter === 'belum-lunas') {
@@ -47,7 +44,6 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST - Create new penabung
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -65,7 +61,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check duplicate name
     const existing = await db
       .select()
       .from(penabung)
@@ -88,7 +83,6 @@ export async function POST(request: NextRequest) {
       })
       .returning()
 
-    // Log activity
     await logActivity({
       userId: session.user.id,
       userRole: session.user.role,

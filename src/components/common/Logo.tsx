@@ -36,12 +36,10 @@ export default function Logo({ size = 'lg', showText = true, className }: LogoPr
   const [imageError, setImageError] = useState(false)
   const [isClient, setIsClient] = useState(false)
 
-  // ✅ FIX: Pastikan hanya render di client side
   useEffect(() => {
     setIsClient(true)
   }, [])
 
-  // ✅ FIX: Coba beberapa path alternatif
   const logoPath = '/logooo.png'
 
   return (
@@ -67,7 +65,6 @@ export default function Logo({ size = 'lg', showText = true, className }: LogoPr
             unoptimized
           />
         ) : (
-          // Fallback ke icon jika gambar gagal load atau masih server-side
           <Cow weight="fill" className={cn('text-white', config.iconClass)} />
         )}
       </div>

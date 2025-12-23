@@ -9,7 +9,6 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Primary colors (hijau untuk tema islami)
         primary: {
           50: '#f0fdf4',
           100: '#dcfce7',
@@ -23,7 +22,6 @@ const config: Config = {
           900: '#14532d',
           950: '#052e16',
         },
-        // Secondary colors (biru untuk profesional)
         secondary: {
           50: '#eff6ff',
           100: '#dbeafe',
@@ -37,7 +35,6 @@ const config: Config = {
           900: '#1e3a8a',
           950: '#172554',
         },
-        // Status colors
         success: '#10b981',
         warning: '#f59e0b',
         error: '#ef4444',

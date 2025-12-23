@@ -75,7 +75,6 @@ export default function ActivityLogCard({ log, delay = 0 }: ActivityLogCardProps
       transition={{ delay }}
       className="bg-white rounded-xl p-4 shadow-sm border border-gray-200"
     >
-      {/* Header */}
       <div className="flex items-start gap-3 mb-3">
         <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
           {getActionIcon()}

@@ -51,20 +51,17 @@ export default function PendapatanChart({
   const currentYear = new Date().getFullYear()
   const years = Array.from({ length: 5 }, (_, i) => currentYear - i)
 
-  // Transform data for chart
   const chartData = data.map((item) => ({
     tanggal: format(new Date(item.tanggal), 'dd MMM', { locale: id }),
     total: parseFloat(item.total),
     count: item.count,
   }))
 
-  // ✅ FIX: Calculate total dengan benar
   const totalPendapatan = data.reduce(
     (sum, item) => sum + parseFloat(item.total || '0'),
     0
   )
   
-  // ✅ FIX: Total transaksi harus dijumlahkan dari count, bukan data.length
   const totalTransaksi = data.reduce(
     (sum, item) => sum + Number(item.count || 0), 
     0
@@ -77,12 +74,10 @@ export default function PendapatanChart({
       transition={{ delay: 0.4 }}
       className="bg-white rounded-2xl p-4 shadow-md border border-gray-100"
     >
-      {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-bold text-gray-900">Grafik Pendapatan</h3>
       </div>
 
-      {/* Filters */}
       <div className="grid grid-cols-2 gap-3 mb-4">
         <select
           value={month}
@@ -109,7 +104,6 @@ export default function PendapatanChart({
         </select>
       </div>
 
-      {/* Summary */}
       <div className="grid grid-cols-2 gap-3 mb-4">
         <div className="bg-primary-50 rounded-xl p-3">
           <p className="text-xs text-primary-600 mb-1">Total Pendapatan</p>
@@ -123,7 +117,6 @@ export default function PendapatanChart({
         </div>
       </div>
 
-      {/* Chart */}
       {chartData.length > 0 ? (
         <ResponsiveContainer width="100%" height={250}>
           <LineChart data={chartData}>

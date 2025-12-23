@@ -38,11 +38,9 @@ export async function logActivity({
     })
   } catch (error) {
     console.error('Failed to log activity:', error)
-    // Don't throw error to prevent breaking main operation
   }
 }
 
-// Helper untuk extract IP dari request
 export function getClientIp(request: Request): string {
   const forwarded = request.headers.get('x-forwarded-for')
   const realIp = request.headers.get('x-real-ip')

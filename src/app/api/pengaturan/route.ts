@@ -6,7 +6,6 @@ import { eq } from 'drizzle-orm'
 import { logActivity, getClientIp } from '@/lib/utils/activity-logger'
 import { getIndonesiaDateTime } from '@/lib/utils/timezone'
 
-// GET - Get pengaturan
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -14,7 +13,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get target qurban setting
     const [targetSetting] = await db
       .select()
       .from(pengaturan)
@@ -23,7 +21,7 @@ export async function GET(request: NextRequest) {
 
     const targetQurban = targetSetting
       ? parseInt(targetSetting.value)
-      : 3600000 // Default 3.6 juta
+      : 3600000 
 
     return NextResponse.json({
       targetQurban,
@@ -39,7 +37,6 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// PUT - Update pengaturan
 export async function PUT(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -47,7 +44,6 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Admin only
     if (session.user.role !== 'admin') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
@@ -55,7 +51,6 @@ export async function PUT(request: NextRequest) {
     const body = await request.json()
     const { targetQurban } = body
 
-    // Validation
     if (!targetQurban || targetQurban < 1000) {
       return NextResponse.json(
         { error: 'Target qurban minimal Rp 1.000' },
@@ -63,17 +58,14 @@ export async function PUT(request: NextRequest) {
       )
     }
 
-    // Get old value for logging
     const [oldSetting] = await db
       .select()
       .from(pengaturan)
       .where(eq(pengaturan.key, 'target_qurban'))
       .limit(1)
 
-    // ✅ FIX: Gunakan timezone Indonesia untuk updatedAt
     const indonesiaTime = getIndonesiaDateTime()
 
-    // Upsert setting
     const [updated] = await db
       .insert(pengaturan)
       .values({
@@ -92,7 +84,6 @@ export async function PUT(request: NextRequest) {
       })
       .returning()
 
-    // Log activity
     await logActivity({
       userId: session.user.id,
       userRole: session.user.role,

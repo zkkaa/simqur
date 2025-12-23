@@ -31,7 +31,6 @@ export default function ActivityLogPage() {
     return <LoadingPage text="Memuat..." />
   }
 
-  // Redirect if not admin
   if (user?.role !== 'admin') {
     router.push('/lainnya')
     return null
@@ -54,7 +53,6 @@ export default function ActivityLogPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pb-8">
       <div className="max-w-sm mx-auto">
-        {/* Header */}
         <div className="bg-gradient-to-br from-primary-600 to-primary-700 px-4 pt-8 pb-6 rounded-b-3xl shadow-lg">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -71,7 +69,6 @@ export default function ActivityLogPage() {
             <Logo size="md" showText={false} />
           </motion.div>
 
-          {/* Search */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -86,9 +83,7 @@ export default function ActivityLogPage() {
           </motion.div>
         </div>
 
-        {/* Filters */}
         <div className="px-4 -mt-3 mb-4 space-y-3">
-          {/* Action Filter */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -148,7 +143,6 @@ export default function ActivityLogPage() {
           </motion.div>
         </div>
 
-        {/* Content */}
         <div className="px-4 space-y-3">
           {isLoading ? (
             <div className="text-center py-12">

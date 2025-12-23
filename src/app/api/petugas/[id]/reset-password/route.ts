@@ -6,7 +6,6 @@ import { db, users } from '@/lib/db'
 import { eq } from 'drizzle-orm'
 import { logActivity, getClientIp } from '@/lib/utils/activity-logger'
 
-// POST - Reset password petugas
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -31,7 +30,6 @@ export async function POST(
       )
     }
 
-    // Get petugas data
     const [petugas] = await db
       .select()
       .from(users)
@@ -42,7 +40,6 @@ export async function POST(
       return NextResponse.json({ error: 'Petugas not found' }, { status: 404 })
     }
 
-    // Hash new password
     const hashedPassword = await hashPassword(newPassword)
 
     await db
@@ -53,7 +50,6 @@ export async function POST(
       })
       .where(eq(users.id, params.id))
 
-    // Log activity
     await logActivity({
       userId: session.user.id,
       userRole: session.user.role,

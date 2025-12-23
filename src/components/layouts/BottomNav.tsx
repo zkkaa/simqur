@@ -38,12 +38,10 @@ export default function BottomNav() {
   const iconsRef = useRef<(HTMLDivElement | null)[]>([])
   const labelsRef = useRef<(HTMLSpanElement | null)[]>([])
 
-  // Filter nav items based on role
   const visibleItems = navItems.filter(
     (item) => !item.adminOnly || isAdmin
   )
 
-  // GSAP animation when active state changes
   useEffect(() => {
     visibleItems.forEach((item, index) => {
       const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
@@ -51,7 +49,6 @@ export default function BottomNav() {
       const label = labelsRef.current[index]
 
       if (isActive && icon && label) {
-        // Bounce and glow effect for active item
         gsap.fromTo(
           icon,
           { 
@@ -68,7 +65,6 @@ export default function BottomNav() {
           }
         )
 
-        // Label slide up animation
         gsap.fromTo(
           label,
           { 
@@ -87,7 +83,6 @@ export default function BottomNav() {
     })
   }, [pathname, visibleItems])
 
-  // Don't show on login page
   if (pathname === '/login') return null
 
   return (
@@ -104,7 +99,6 @@ export default function BottomNav() {
                 href={item.href}
                 className="relative flex flex-col items-center justify-center min-w-[60px] py-2"
               >
-                {/* Active Indicator with morphing animation */}
                 <AnimatePresence mode="wait">
                   {isActive && (
                     <motion.div
@@ -126,7 +120,6 @@ export default function BottomNav() {
                   )}
                 </AnimatePresence>
 
-                {/* Ripple effect on active */}
                 {isActive && (
                   <motion.div
                     className="absolute inset-0 bg-primary-200 rounded-xl"
@@ -142,7 +135,6 @@ export default function BottomNav() {
                   />
                 )}
 
-                {/* Icon with ref for GSAP */}
                 <div
                   ref={(el) => { iconsRef.current[index] = el }}
                   className="relative z-10"
@@ -163,7 +155,6 @@ export default function BottomNav() {
                       }`}
                     />
                     
-                    {/* Sparkle effect on active */}
                     {isActive && (
                       <>
                         <motion.div
@@ -197,7 +188,6 @@ export default function BottomNav() {
                   </motion.div>
                 </div>
 
-                {/* Label with ref for GSAP */}
                 <motion.span
                   ref={(el) => { labelsRef.current[index] = el }}
                   className={`relative z-10 text-xs mt-1 font-medium transition-colors duration-300 ${
@@ -214,7 +204,6 @@ export default function BottomNav() {
                   {item.name}
                 </motion.span>
 
-                {/* Bottom indicator line */}
                 {isActive && (
                   <motion.div
                     className="absolute -bottom-2 left-1/2 w-8 h-1 bg-primary-600 rounded-full"

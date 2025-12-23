@@ -49,7 +49,6 @@ export default function LaporanResultCard({
       transition={{ delay: index * 0.02 }}
       className="bg-white rounded-xl p-4 shadow-sm border border-gray-200"
     >
-      {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2 flex-1 min-w-0">
           <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
@@ -68,7 +67,6 @@ export default function LaporanResultCard({
         </p>
       </div>
 
-      {/* Date & Time with Day Name */}
       <div className="flex items-center gap-3 text-xs text-gray-600 mb-2">
         <div className="flex items-center gap-1">
           <CalendarBlank weight="duotone" className="w-3.5 h-3.5" />
@@ -80,7 +78,6 @@ export default function LaporanResultCard({
         </div>
       </div>
 
-      {/* Footer */}
       <div className="flex items-center justify-between">
         <Badge
           variant={data.metodeBayar === 'tunai' ? 'success' : 'info'}

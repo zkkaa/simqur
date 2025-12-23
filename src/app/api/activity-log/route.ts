@@ -5,7 +5,6 @@ import { db, activityLog } from '@/lib/db'
 import { desc, like, and, eq, gte, lte, sql } from 'drizzle-orm'
 import { formatDateForDB, getIndonesiaDate } from '@/lib/utils/timezone'
 
-// GET - Get activity logs with filters
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -13,7 +12,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Admin only
     if (session.user.role !== 'admin') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
@@ -25,21 +23,17 @@ export async function GET(request: NextRequest) {
 
     let conditions: any[] = []
 
-    // Search filter (description)
     if (search) {
       conditions.push(like(activityLog.description, `%${search}%`))
     }
 
-    // Action filter
     if (action && action !== 'all') {
       conditions.push(eq(activityLog.action, action as any))
     }
 
-    // ✅ FIX: Date filter menggunakan timezone Indonesia
     if (date) {
       const targetDate = formatDateForDB(date)
       
-      // Extract date from timestamp and compare
       conditions.push(
         sql`DATE(${activityLog.createdAt}) = ${targetDate}`
       )
@@ -52,7 +46,7 @@ export async function GET(request: NextRequest) {
       .from(activityLog)
       .where(whereClause)
       .orderBy(desc(activityLog.createdAt))
-      .limit(100) // Limit to last 100 logs
+      .limit(100) 
 
     return NextResponse.json(logs)
   } catch (error) {

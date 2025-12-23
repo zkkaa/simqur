@@ -36,17 +36,14 @@ export default function TransaksiConfirmModal({
             closeOnOverlayClick={!isLoading}
         >
             <div className="text-center">
-                {/* Icon */}
                 <div className="mx-auto w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4">
                     <CheckCircle weight="fill" className="w-10 h-10 text-green-600" />
                 </div>
 
-                {/* Title */}
                 <h3 className="text-xl font-bold text-gray-900 mb-2">
                     Konfirmasi Setoran
                 </h3>
 
-                {/* Details */}
                 <div className="bg-gray-50 rounded-xl p-4 space-y-3 mb-6 text-left">
                     <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-600">Penabung</span>
@@ -63,7 +60,6 @@ export default function TransaksiConfirmModal({
                     <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-600">Metode</span>
                         <Badge
-                            // Ganti 'secondary' menjadi 'info' atau 'default'
                             variant={metodeBayar === 'tunai' ? 'success' : 'info'}
                             size="sm"
                         >
@@ -92,7 +88,6 @@ export default function TransaksiConfirmModal({
                     </div>
                 </div>
 
-                {/* Actions */}
                 <div className="flex gap-3">
                     <Button
                         variant="secondary"

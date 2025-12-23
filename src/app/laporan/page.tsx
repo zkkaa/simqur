@@ -392,7 +392,6 @@ export default function LaporanPage() {
       />
 
       <div className="max-w-sm mx-auto">
-        {/* Header */}
         <div className="bg-gradient-to-br from-primary-600 to-primary-700 px-4 pt-8 pb-6 rounded-b-3xl shadow-lg">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -412,9 +411,7 @@ export default function LaporanPage() {
           </motion.div>
         </div>
 
-        {/* Content */}
         <div className="px-4 space-y-4 mt-6">
-          {/* Type Selector */}
           <div>
             <h3 className="text-sm font-semibold text-gray-700 mb-3 px-1">
               Pilih Jenis Laporan
@@ -440,13 +437,11 @@ export default function LaporanPage() {
             </div>
           </div>
 
-          {/* Filters */}
           <div>
             <h3 className="text-sm font-semibold text-gray-700 mb-3 px-1">
               Filter & Parameter
             </h3>
             <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-200 space-y-4">
-              {/* Date Filters */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <label className="text-sm font-semibold text-gray-700">
@@ -462,7 +457,6 @@ export default function LaporanPage() {
                   </button>
                 </div>
 
-                {/* Preset Buttons */}
                 <AnimatePresence>
                   {showPresets && (
                     <motion.div
@@ -484,7 +478,6 @@ export default function LaporanPage() {
                   )}
                 </AnimatePresence>
 
-                {/* Date Inputs */}
                 <div className="grid grid-cols-2 gap-3">
                   <Input
                     type="date"
@@ -507,7 +500,6 @@ export default function LaporanPage() {
                 </div>
               </div>
 
-              {/* Penabung Selector */}
               {selectedType === 'per-warga' && (
                 <PenabungSelectorLaporan
                   value={penabungId}
@@ -516,7 +508,6 @@ export default function LaporanPage() {
                 />
               )}
 
-              {/* Petugas Selector */}
               {selectedType === 'per-petugas' && (
                 <PetugasSelectorLaporan
                   value={petugasId}
@@ -527,7 +518,6 @@ export default function LaporanPage() {
             </div>
           </div>
 
-          {/* Generate Button */}
           <Button
             variant="primary"
             fullWidth
@@ -537,7 +527,6 @@ export default function LaporanPage() {
             Generate Laporan
           </Button>
 
-          {/* Results */}
           {enableQuery && (
             <>
               {laporanLoading ? (
@@ -563,14 +552,12 @@ export default function LaporanPage() {
                 </InfoCard>
               ) : (
                 <>
-                  {/* Summary */}
                   <LaporanSummaryCard
                     type={selectedType as any}
                     data={laporanData}
                     period={getPeriodString()}
                   />
 
-                  {/* Results List */}
                   <div>
                     <h3 className="text-sm font-semibold text-gray-700 mb-3 px-1">
                       Detail Transaksi ({laporanData.data.length})
@@ -587,7 +574,6 @@ export default function LaporanPage() {
                     </div>
                   </div>
 
-                  {/* Export Buttons */}
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}

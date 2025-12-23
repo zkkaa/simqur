@@ -62,7 +62,6 @@ export default function RecentTransactions({ data }: RecentTransactionsProps) {
             transition={{ delay: 0.6 + index * 0.05 }}
             className="p-3 bg-gray-50 rounded-xl border border-gray-200"
           >
-            {/* Header */}
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2 flex-1 min-w-0">
                 <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
@@ -81,7 +80,6 @@ export default function RecentTransactions({ data }: RecentTransactionsProps) {
               </p>
             </div>
 
-            {/* Date & Time with Day Name */}
             <div className="flex items-center gap-2 text-xs text-gray-600 mb-2">
               <Calendar weight="duotone" className="w-3.5 h-3.5" />
               <span>{formatDateWithDay(item.tanggal)}</span>
@@ -89,7 +87,6 @@ export default function RecentTransactions({ data }: RecentTransactionsProps) {
               <span>{formatTime(item.createdAt)}</span>
             </div>
 
-            {/* Badge & Petugas */}
             <div className="flex items-center justify-between">
               <Badge
                 variant={item.metodeBayar === 'tunai' ? 'success' : 'info'}

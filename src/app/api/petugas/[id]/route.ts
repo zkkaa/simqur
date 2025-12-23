@@ -5,7 +5,6 @@ import { db, users } from '@/lib/db'
 import { eq } from 'drizzle-orm'
 import { logActivity, getClientIp } from '@/lib/utils/activity-logger'
 
-// GET - Fetch single petugas
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -40,7 +39,6 @@ export async function GET(
   }
 }
 
-// PATCH - Update petugas
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -58,7 +56,6 @@ export async function PATCH(
     const body = await request.json()
     const { namaLengkap, email, noTelp, isActive } = body
 
-    // Get old data
     const [oldData] = await db
       .select()
       .from(users)
@@ -69,7 +66,6 @@ export async function PATCH(
       return NextResponse.json({ error: 'Petugas not found' }, { status: 404 })
     }
 
-    // Check duplicate email (exclude current)
     if (email && email !== oldData.email) {
       const [existing] = await db
         .select()
@@ -85,7 +81,6 @@ export async function PATCH(
       }
     }
 
-    // Build update data
     const updateData: any = {
       updatedAt: new Date(),
     }
@@ -101,7 +96,6 @@ export async function PATCH(
       .where(eq(users.id, params.id))
       .returning()
 
-    // Log activity
     await logActivity({
       userId: session.user.id,
       userRole: session.user.role,
@@ -124,7 +118,6 @@ export async function PATCH(
   }
 }
 
-// DELETE - Toggle active status
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -139,7 +132,6 @@ export async function DELETE(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    // Get data
     const [petugas] = await db
       .select()
       .from(users)
@@ -150,7 +142,6 @@ export async function DELETE(
       return NextResponse.json({ error: 'Petugas not found' }, { status: 404 })
     }
 
-    // Toggle active status
     const newStatus = !petugas.isActive
 
     const [updated] = await db
@@ -162,7 +153,6 @@ export async function DELETE(
       .where(eq(users.id, params.id))
       .returning()
 
-    // Log activity
     await logActivity({
       userId: session.user.id,
       userRole: session.user.role,

@@ -6,7 +6,6 @@ import { eq } from 'drizzle-orm'
 import bcrypt from 'bcryptjs'
 import { logActivity, getClientIp } from '@/lib/utils/activity-logger'
 
-// PUT - Change password
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -21,12 +20,10 @@ export async function PUT(
     const body = await request.json()
     const { currentPassword, newPassword } = body
 
-    // Check permission: user can only change their own password
     if (session.user.id !== id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    // Validation
     if (!currentPassword || !newPassword) {
       return NextResponse.json(
         { error: 'Password lama dan baru harus diisi' },
@@ -41,7 +38,6 @@ export async function PUT(
       )
     }
 
-    // Get user
     const [user] = await db
       .select()
       .from(users)
@@ -55,7 +51,6 @@ export async function PUT(
       )
     }
 
-    // Verify current password
     const isValid = await bcrypt.compare(currentPassword, user.password)
     if (!isValid) {
       return NextResponse.json(
@@ -64,10 +59,8 @@ export async function PUT(
       )
     }
 
-    // Hash new password
     const hashedPassword = await bcrypt.hash(newPassword, 10)
 
-    // Update password
     await db
       .update(users)
       .set({
@@ -76,7 +69,6 @@ export async function PUT(
       })
       .where(eq(users.id, id))
 
-    // Log activity
     await logActivity({
       userId: session.user.id,
       userRole: session.user.role,
