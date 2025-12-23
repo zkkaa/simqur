@@ -1,12 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { useAuth } from '@/lib/hooks/use-auth'
 import { useDashboard } from '@/lib/hooks/use-dashboard'
 import { LoadingPage } from '@/components/common/LoadingSpinner'
-import Button from '@/components/common/Button'
 import Logo from '@/components/common/Logo'
 import InfoCard from '@/components/common/InfoCard'
 import BottomNav from '@/components/layouts/BottomNav'
@@ -20,8 +19,6 @@ import {
   Wallet,
   CheckCircle,
   UserGear,
-  CurrencyCircleDollar,
-  FileText,
 } from '@phosphor-icons/react'
 import { formatCurrency } from '@/lib/utils/format'
 
@@ -30,24 +27,48 @@ export default function BerandaPage() {
   const { user, isLoading: authLoading } = useAuth()
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1)
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
+  const [mounted, setMounted] = useState(false)
 
   const { data: dashboardData, isLoading, error } = useDashboard(
     selectedMonth,
     selectedYear
   )
 
-  if (authLoading) {
+  // ✅ DEBUG: Log state
+  useEffect(() => {
+    console.log('🏠 Beranda Page mounted')
+    console.log('👤 User:', user)
+    console.log('⏳ Auth Loading:', authLoading)
+    console.log('📊 Dashboard Data:', dashboardData)
+    console.log('❌ Error:', error)
+    setMounted(true)
+  }, [user, authLoading, dashboardData, error])
+
+  // Show loading while checking auth
+  if (authLoading || !mounted) {
+    console.log('⏳ Showing loading page...')
     return <LoadingPage text="Memuat..." />
   }
 
-  if (user?.role !== 'admin') {
+  // Check if user is admin
+  if (!user) {
+    console.log('❌ No user, redirecting to login...')
+    router.push('/login')
+    return null
+  }
+
+  if (user.role !== 'admin') {
+    console.log('❌ Not admin, redirecting to transaksi...')
     router.push('/transaksi')
     return null
   }
 
+  console.log('✅ Rendering beranda content...')
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pb-24">
       <div className="max-w-sm mx-auto">
+        {/* Header */}
         <div className="bg-gradient-to-br from-primary-600 to-primary-700 px-4 pt-8 pb-6 rounded-b-3xl shadow-lg">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -61,14 +82,15 @@ export default function BerandaPage() {
               <div>
                 <h1 className="text-white text-2xl font-bold">Beranda</h1>
                 <p className="text-primary-100 text-sm">
-                  Selamat datang {user?.namaLengkap}
+                  Selamat datang {user?.namaLengkap || user?.name}
                 </p>
               </div>
             </div>
-            <Logo size="lg" showText={false} />
+            <Logo size="sm" showText={false} />
           </motion.div>
         </div>
 
+        {/* Content */}
         <div className="px-4 -mt-4 space-y-4">
           {isLoading ? (
             <div className="text-center py-12">
@@ -78,9 +100,11 @@ export default function BerandaPage() {
           ) : error ? (
             <InfoCard variant="error" title="Error">
               <p className="text-sm">Gagal memuat data dashboard</p>
+              <p className="text-xs mt-2">Error: {error.message || 'Unknown error'}</p>
             </InfoCard>
           ) : dashboardData ? (
             <>
+              {/* Statistics Cards */}
               <div className="grid grid-cols-2 gap-3">
                 <StatCard
                   icon={<Users weight="duotone" className="w-6 h-6" />}
@@ -120,6 +144,7 @@ export default function BerandaPage() {
                 />
               </div>
 
+              {/* Pendapatan Chart */}
               <PendapatanChart
                 data={dashboardData.chartData}
                 month={selectedMonth}
@@ -128,11 +153,17 @@ export default function BerandaPage() {
                 onYearChange={setSelectedYear}
               />
 
+              {/* Recent Lunas */}
               <RecentLunasCard data={dashboardData.recentLunas} />
 
+              {/* Recent Transactions */}
               <RecentTransactions data={dashboardData.recentTransaksi} />
             </>
-          ) : null}
+          ) : (
+            <InfoCard variant="info" title="Info">
+              <p className="text-sm">Tidak ada data untuk ditampilkan</p>
+            </InfoCard>
+          )}
         </div>
       </div>
 

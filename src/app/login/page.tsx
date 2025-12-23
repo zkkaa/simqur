@@ -12,7 +12,7 @@ import Button from '@/components/common/Button'
 import Input from '@/components/common/Input'
 import Toast from '@/components/common/Toast'
 import Logo from '@/components/common/Logo'
-import SplashScreen from '@/components/SplashScreen'
+// import SplashScreen from '@/components/SplashScreen' // TEMPORARY DISABLE
 import { SignIn, Eye, EyeSlash, Key, LockKey } from '@phosphor-icons/react'
 
 const loginSchema = z.object({
@@ -25,13 +25,13 @@ type LoginFormData = z.infer<typeof loginSchema>
 function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const callbackUrl = searchParams.get('callbackUrl') || '/'
+  const callbackUrl = searchParams.get('callbackUrl') || '/beranda' // ✅ DEFAULT ke /beranda
   const { status } = useSession()
 
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
-  const [showSplash, setShowSplash] = useState(true)
-  const [showLogin, setShowLogin] = useState(false)
+  // const [showSplash, setShowSplash] = useState(true) // DISABLE
+  // const [showLogin, setShowLogin] = useState(false) // DISABLE
   const [toast, setToast] = useState<{
     isOpen: boolean
     title: string
@@ -54,52 +54,52 @@ function LoginForm() {
     resolver: zodResolver(loginSchema),
   })
 
+  // ✅ Redirect if already authenticated
   useEffect(() => {
     if (status === 'authenticated') {
-      setShowSplash(false)
-      setShowLogin(false)
+      router.push('/beranda')
     }
-  }, [status])
+  }, [status, router])
 
-  const handleSplashComplete = () => {
-    setShowSplash(false)
-    
-    setTimeout(() => {
-      setShowLogin(true)
-      
-      if (containerRef.current && cardRef.current) {
-        gsap.fromTo(
-          containerRef.current,
-          { opacity: 0 },
-          { opacity: 1, duration: 0.5 }
-        )
+  // ✅ GSAP Animation on mount
+  useEffect(() => {
+    if (containerRef.current && cardRef.current) {
+      gsap.fromTo(
+        containerRef.current,
+        { opacity: 0 },
+        { opacity: 1, duration: 0.5 }
+      )
 
-        gsap.fromTo(
-          cardRef.current,
-          { y: 50, opacity: 0, scale: 0.9 },
-          { 
-            y: 0, 
-            opacity: 1, 
-            scale: 1, 
-            duration: 0.6, 
-            ease: 'back.out(1.7)' 
-          }
-        )
-      }
-    }, 100)
-  }
+      gsap.fromTo(
+        cardRef.current,
+        { y: 50, opacity: 0, scale: 0.9 },
+        { 
+          y: 0, 
+          opacity: 1, 
+          scale: 1, 
+          duration: 0.6, 
+          ease: 'back.out(1.7)' 
+        }
+      )
+    }
+  }, [])
 
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true)
 
     try {
+      console.log('🔐 Attempting login with:', data.email) // DEBUG
+
       const result = await signIn('credentials', {
         email: data.email,
         password: data.password,
         redirect: false,
       })
 
+      console.log('✅ Login result:', result) // DEBUG
+
       if (result?.error) {
+        console.error('❌ Login error:', result.error) // DEBUG
         setToast({
           isOpen: true,
           title: 'Login Gagal',
@@ -107,6 +107,8 @@ function LoginForm() {
           variant: 'error',
         })
       } else if (result?.ok) {
+        console.log('✅ Login successful, redirecting to:', callbackUrl) // DEBUG
+        
         setToast({
           isOpen: true,
           title: 'Login Berhasil',
@@ -114,12 +116,14 @@ function LoginForm() {
           variant: 'success',
         })
 
+        // Redirect immediately
         setTimeout(() => {
-          router.push(callbackUrl)
-          router.refresh()
+          console.log('🔄 Executing redirect...') // DEBUG
+          window.location.href = callbackUrl // ✅ Force full page reload
         }, 1000)
       }
     } catch (err) {
+      console.error('❌ Login exception:', err) // DEBUG
       setToast({
         isOpen: true,
         title: 'Terjadi Kesalahan',
@@ -131,15 +135,20 @@ function LoginForm() {
     }
   }
 
-  if (showSplash) {
-    return <SplashScreen onComplete={handleSplashComplete} />
+  // Show loading while checking auth
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-primary-500 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin w-12 h-12 border-4 border-white border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-white">Memeriksa autentikasi...</p>
+        </div>
+      </div>
+    )
   }
 
+  // Don't render if authenticated
   if (status === 'authenticated') {
-    return null
-  }
-
-  if (!showLogin) {
     return null
   }
 
@@ -217,7 +226,7 @@ function LoginForm() {
               id="email"
               type="email"
               label="Email"
-              placeholder="admin@simqur.com"
+              placeholder="admin@tabunganqurban.com"
               error={errors.email?.message}
               disabled={isLoading}
               leftIcon={<Key weight="duotone" className="w-5 h-5" />}
