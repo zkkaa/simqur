@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, Suspense } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { signIn, useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
@@ -12,9 +12,10 @@ import Button from '@/components/common/Button'
 import Input from '@/components/common/Input'
 import Toast from '@/components/common/Toast'
 import Logo from '@/components/common/Logo'
-// import SplashScreen from '@/components/SplashScreen' // TEMPORARY DISABLE
+import SplashScreen from '@/components/SplashScreen'
 import { SignIn, Eye, EyeSlash, Key, LockKey } from '@phosphor-icons/react'
 
+// Validation schema
 const loginSchema = z.object({
   email: z.string().email('Email tidak valid'),
   password: z.string().min(6, 'Password minimal 6 karakter'),
@@ -22,16 +23,16 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>
 
-function LoginForm() {
+export default function LoginPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const callbackUrl = searchParams.get('callbackUrl') || '/beranda' // ✅ DEFAULT ke /beranda
+  const callbackUrl = searchParams.get('callbackUrl') || '/'
   const { status } = useSession()
 
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
-  // const [showSplash, setShowSplash] = useState(true) // DISABLE
-  // const [showLogin, setShowLogin] = useState(false) // DISABLE
+  const [showSplash, setShowSplash] = useState(true)
+  const [showLogin, setShowLogin] = useState(false)
   const [toast, setToast] = useState<{
     isOpen: boolean
     title: string
@@ -45,6 +46,7 @@ function LoginForm() {
 
   const containerRef = useRef<HTMLDivElement>(null)
   const cardRef = useRef<HTMLDivElement>(null)
+  const hasAnimatedRef = useRef(false)
 
   const {
     register,
@@ -54,16 +56,28 @@ function LoginForm() {
     resolver: zodResolver(loginSchema),
   })
 
-  // ✅ Redirect if already authenticated
+  // Check if user is already authenticated
   useEffect(() => {
     if (status === 'authenticated') {
-      router.push('/beranda')
+      router.replace(callbackUrl)
     }
-  }, [status, router])
+  }, [status, callbackUrl, router])
 
-  // ✅ GSAP Animation on mount
+  // Handle splash screen completion
+  const handleSplashComplete = () => {
+    setShowSplash(false)
+    
+    // Small delay before showing login form
+    setTimeout(() => {
+      setShowLogin(true)
+    }, 100)
+  }
+
+  // GSAP entrance animation for login form
   useEffect(() => {
-    if (containerRef.current && cardRef.current) {
+    if (showLogin && !hasAnimatedRef.current && containerRef.current && cardRef.current) {
+      hasAnimatedRef.current = true
+      
       gsap.fromTo(
         containerRef.current,
         { opacity: 0 },
@@ -82,24 +96,19 @@ function LoginForm() {
         }
       )
     }
-  }, [])
+  }, [showLogin])
 
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true)
 
     try {
-      console.log('🔐 Attempting login with:', data.email) // DEBUG
-
       const result = await signIn('credentials', {
         email: data.email,
         password: data.password,
         redirect: false,
       })
 
-      console.log('✅ Login result:', result) // DEBUG
-
       if (result?.error) {
-        console.error('❌ Login error:', result.error) // DEBUG
         setToast({
           isOpen: true,
           title: 'Login Gagal',
@@ -107,8 +116,6 @@ function LoginForm() {
           variant: 'error',
         })
       } else if (result?.ok) {
-        console.log('✅ Login successful, redirecting to:', callbackUrl) // DEBUG
-        
         setToast({
           isOpen: true,
           title: 'Login Berhasil',
@@ -116,14 +123,13 @@ function LoginForm() {
           variant: 'success',
         })
 
-        // Redirect immediately
+        // Delay redirect untuk show toast
         setTimeout(() => {
-          console.log('🔄 Executing redirect...') // DEBUG
-          window.location.href = callbackUrl // ✅ Force full page reload
+          router.push(callbackUrl)
+          router.refresh()
         }, 1000)
       }
     } catch (err) {
-      console.error('❌ Login exception:', err) // DEBUG
       setToast({
         isOpen: true,
         title: 'Terjadi Kesalahan',
@@ -135,20 +141,37 @@ function LoginForm() {
     }
   }
 
-  // Show loading while checking auth
+  // Show splash screen first
+  if (showSplash) {
+    return <SplashScreen onComplete={handleSplashComplete} />
+  }
+
+  // Show loading if checking authentication
   if (status === 'loading') {
     return (
       <div className="min-h-screen bg-primary-500 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin w-12 h-12 border-4 border-white border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-white">Memeriksa autentikasi...</p>
+          <p className="text-white text-lg">Memuat...</p>
         </div>
       </div>
     )
   }
 
-  // Don't render if authenticated
+  // Don't show login form if already authenticated
   if (status === 'authenticated') {
+    return (
+      <div className="min-h-screen bg-primary-500 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin w-12 h-12 border-4 border-white border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-white text-lg">Mengalihkan...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Don't render login form until animation should start
+  if (!showLogin) {
     return null
   }
 
@@ -157,6 +180,7 @@ function LoginForm() {
       ref={containerRef}
       className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 flex items-center justify-center p-4 relative overflow-hidden"
     >
+      {/* Animated Background Elements */}
       <motion.div
         animate={{
           scale: [1, 1.2, 1],
@@ -191,11 +215,14 @@ function LoginForm() {
         duration={3000}
       />
 
+      {/* Mobile-First Container: max-w-sm (384px) */}
       <div className="w-full max-w-sm relative z-10">
+        {/* Card */}
         <div 
           ref={cardRef} 
           className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 space-y-6 border border-white/20"
         >
+          {/* Logo */}
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
@@ -214,6 +241,7 @@ function LoginForm() {
             </p>
           </motion.div>
 
+          {/* Login Form */}
           <motion.form
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -226,7 +254,7 @@ function LoginForm() {
               id="email"
               type="email"
               label="Email"
-              placeholder="admin@tabunganqurban.com"
+              placeholder="admin@simqur.com"
               error={errors.email?.message}
               disabled={isLoading}
               leftIcon={<Key weight="duotone" className="w-5 h-5" />}
@@ -249,6 +277,7 @@ function LoginForm() {
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-[38px] text-gray-400 hover:text-gray-600 transition-colors"
+                disabled={isLoading}
               >
                 {showPassword ? (
                   <EyeSlash weight="duotone" className="w-5 h-5" />
@@ -274,6 +303,7 @@ function LoginForm() {
             </motion.div>
           </motion.form>
 
+          {/* Footer Info */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -286,27 +316,16 @@ function LoginForm() {
           </motion.div>
         </div>
 
+        {/* Version */}
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1 }}
           className="text-center text-xs text-gray-400 mt-6"
         >
-          Copyright © 2025 Muhammad Azka
+          SIMQUR v1.0.0 • Desa Sambong Sawah
         </motion.p>
       </div>
     </div>
-  )
-}
-
-export default function LoginPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-primary-500 flex items-center justify-center">
-        <div className="animate-spin w-12 h-12 border-4 border-white border-t-transparent rounded-full" />
-      </div>
-    }>
-      <LoginForm />
-    </Suspense>
   )
 }

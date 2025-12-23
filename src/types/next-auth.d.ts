@@ -3,10 +3,10 @@ import 'next-auth'
 declare module 'next-auth' {
   interface Session {
     user: {
+      namaLengkap: ReactNode
       id: string
       email: string
       name: string
-      namaLengkap: string
       role: 'admin' | 'petugas'
       noTelp?: string | null
     }
@@ -16,7 +16,6 @@ declare module 'next-auth' {
     id: string
     email: string
     name: string
-    namaLengkap: string
     role: 'admin' | 'petugas'
     noTelp?: string | null
   }
@@ -27,7 +26,6 @@ declare module 'next-auth/jwt' {
     id: string
     email: string
     name: string
-    namaLengkap: string
     role: 'admin' | 'petugas'
     noTelp?: string | null
   }

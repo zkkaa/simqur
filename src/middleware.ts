@@ -29,23 +29,13 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Allow access to login page and api routes
-  if (pathname.startsWith('/login') || pathname.startsWith('/api')) {
-    // Redirect to appropriate page if already logged in
+  if (pathname.startsWith('/login') || pathname.startsWith('/api/auth')) {
+    // Redirect to beranda if already logged in
     if (token && pathname === '/login') {
       const redirectUrl = token.role === 'admin' ? '/beranda' : '/transaksi'
       return NextResponse.redirect(new URL(redirectUrl, request.url))
     }
     return NextResponse.next()
-  }
-
-  // ✅ FIX: Redirect root "/" berdasarkan role atau ke login
-  if (pathname === '/') {
-    if (token) {
-      const redirectUrl = token.role === 'admin' ? '/beranda' : '/transaksi'
-      return NextResponse.redirect(new URL(redirectUrl, request.url))
-    } else {
-      return NextResponse.redirect(new URL('/login', request.url))
-    }
   }
 
   // Redirect to login if not authenticated
@@ -67,12 +57,17 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith(route)
   )
   
-  // Allow access to protected routes if authenticated
-  if (isProtectedRoute || isAdminRoute) {
+  if (!isProtectedRoute && !isAdminRoute && pathname !== '/') {
+    // Allow access to unprotected routes
     return NextResponse.next()
   }
 
-  // For other routes, allow access
+  // Redirect root to appropriate page based on role
+  if (pathname === '/') {
+    const redirectUrl = token.role === 'admin' ? '/beranda' : '/transaksi'
+    return NextResponse.redirect(new URL(redirectUrl, request.url))
+  }
+
   return NextResponse.next()
 }
 
@@ -83,7 +78,7 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - files with extensions (images, etc)
+     * - public folder
      */
     '/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)',
   ],

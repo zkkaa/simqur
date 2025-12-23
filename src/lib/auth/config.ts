@@ -17,6 +17,7 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Email dan password harus diisi')
         }
 
+        // Find user by email
         const [user] = await db
           .select()
           .from(users)
@@ -27,10 +28,12 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Email atau password salah')
         }
 
+        // Check if user is active
         if (!user.isActive) {
           throw new Error('Akun Anda telah dinonaktifkan')
         }
 
+        // Verify password
         const isValid = await bcrypt.compare(credentials.password, user.password)
         if (!isValid) {
           throw new Error('Email atau password salah')
@@ -40,7 +43,6 @@ export const authOptions: NextAuthOptions = {
           id: user.id,
           email: user.email,
           name: user.namaLengkap,
-          namaLengkap: user.namaLengkap,
           role: user.role,
           noTelp: user.noTelp,
         }
@@ -53,7 +55,6 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id
         token.email = user.email
         token.name = user.name
-        token.namaLengkap = user.namaLengkap
         token.role = user.role
         token.noTelp = user.noTelp
       }
@@ -64,7 +65,6 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id
         session.user.email = token.email
         session.user.name = token.name
-        session.user.namaLengkap = token.namaLengkap
         session.user.role = token.role
         session.user.noTelp = token.noTelp
       }
@@ -73,27 +73,13 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: '/login',
+    error: '/login',
   },
+  
   session: {
     strategy: 'jwt',
-    maxAge: 24 * 60 * 60,
-    
-    updateAge: 0,
+    maxAge: 24 * 60 * 60, 
   },
-  jwt: {
-    maxAge: 24 * 60 * 60,
-  },
-  cookies: {
-    sessionToken: {
-      name: `next-auth.session-token`,
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 24 * 60 * 60,
-      },
-    },
-  },
+
   secret: process.env.NEXTAUTH_SECRET,
 }

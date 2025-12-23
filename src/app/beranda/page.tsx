@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { useAuth } from '@/lib/hooks/use-auth'
 import { useDashboard } from '@/lib/hooks/use-dashboard'
 import { LoadingPage } from '@/components/common/LoadingSpinner'
+import Button from '@/components/common/Button'
 import Logo from '@/components/common/Logo'
 import InfoCard from '@/components/common/InfoCard'
 import BottomNav from '@/components/layouts/BottomNav'
@@ -19,6 +20,8 @@ import {
   Wallet,
   CheckCircle,
   UserGear,
+  CurrencyCircleDollar,
+  FileText,
 } from '@phosphor-icons/react'
 import { formatCurrency } from '@/lib/utils/format'
 
@@ -27,43 +30,21 @@ export default function BerandaPage() {
   const { user, isLoading: authLoading } = useAuth()
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1)
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
-  const [mounted, setMounted] = useState(false)
 
   const { data: dashboardData, isLoading, error } = useDashboard(
     selectedMonth,
     selectedYear
   )
 
-  // ✅ DEBUG: Log state
-  useEffect(() => {
-    console.log('🏠 Beranda Page mounted')
-    console.log('👤 User:', user)
-    console.log('⏳ Auth Loading:', authLoading)
-    console.log('📊 Dashboard Data:', dashboardData)
-    console.log('❌ Error:', error)
-    setMounted(true)
-  }, [user, authLoading, dashboardData, error])
-
-  // Show loading while checking auth
-  if (authLoading || !mounted) {
-    console.log('⏳ Showing loading page...')
+  if (authLoading) {
     return <LoadingPage text="Memuat..." />
   }
 
-  // Check if user is admin
-  if (!user) {
-    console.log('❌ No user, redirecting to login...')
-    router.push('/login')
-    return null
-  }
-
-  if (user.role !== 'admin') {
-    console.log('❌ Not admin, redirecting to transaksi...')
+  // Redirect if not admin
+  if (user?.role !== 'admin') {
     router.push('/transaksi')
     return null
   }
-
-  console.log('✅ Rendering beranda content...')
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pb-24">
@@ -82,11 +63,11 @@ export default function BerandaPage() {
               <div>
                 <h1 className="text-white text-2xl font-bold">Beranda</h1>
                 <p className="text-primary-100 text-sm">
-                  Selamat datang {user?.namaLengkap || user?.name}
+                  Selamat datang {user?.namaLengkap}
                 </p>
               </div>
             </div>
-            <Logo size="sm" showText={false} />
+            <Logo size="lg" showText={false} />
           </motion.div>
         </div>
 
@@ -100,7 +81,6 @@ export default function BerandaPage() {
           ) : error ? (
             <InfoCard variant="error" title="Error">
               <p className="text-sm">Gagal memuat data dashboard</p>
-              <p className="text-xs mt-2">Error: {error.message || 'Unknown error'}</p>
             </InfoCard>
           ) : dashboardData ? (
             <>
@@ -159,11 +139,7 @@ export default function BerandaPage() {
               {/* Recent Transactions */}
               <RecentTransactions data={dashboardData.recentTransaksi} />
             </>
-          ) : (
-            <InfoCard variant="info" title="Info">
-              <p className="text-sm">Tidak ada data untuk ditampilkan</p>
-            </InfoCard>
-          )}
+          ) : null}
         </div>
       </div>
 

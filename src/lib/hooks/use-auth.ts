@@ -14,14 +14,16 @@ export function useAuth() {
   const signOut = async () => {
     try {
       setIsSigningOut(true)
+      
       await nextAuthSignOut({ 
         redirect: true,
         callbackUrl: '/login' 
       })
+      
     } catch (error) {
       console.error('Logout error:', error)
-      router.push('/login')
-      router.refresh()
+      
+      window.location.href = '/login'
     } finally {
       setIsSigningOut(false)
     }
