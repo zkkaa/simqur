@@ -5,6 +5,9 @@ import { db, activityLog } from '@/lib/db'
 import { desc, like, and, eq, gte, lte, sql } from 'drizzle-orm'
 import { formatDateForDB, getIndonesiaDate } from '@/lib/utils/timezone'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)

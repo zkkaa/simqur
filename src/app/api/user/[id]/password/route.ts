@@ -6,6 +6,9 @@ import { eq } from 'drizzle-orm'
 import bcrypt from 'bcryptjs'
 import { logActivity, getClientIp } from '@/lib/utils/activity-logger'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
