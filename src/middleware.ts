@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { getToken } from 'next-auth/jwt'
 
+// Routes yang hanya bisa diakses admin
 const adminRoutes = [
   '/beranda',
   '/petugas',
@@ -11,6 +12,7 @@ const adminRoutes = [
   '/laporan/per-petugas',
 ]
 
+// Routes yang bisa diakses admin & petugas
 const protectedRoutes = [
   '/penabung',
   '/transaksi',
@@ -26,7 +28,9 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl
 
-  if (pathname.startsWith('/login') || pathname.startsWith('/api/auth')) {
+  // Allow access to login page and api routes
+  if (pathname.startsWith('/login') || pathname.startsWith('/api')) {
+    // Redirect to appropriate page if already logged in
     if (token && pathname === '/login') {
       const redirectUrl = token.role === 'admin' ? '/beranda' : '/transaksi'
       return NextResponse.redirect(new URL(redirectUrl, request.url))
@@ -34,30 +38,41 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
+  // ✅ FIX: Redirect root "/" berdasarkan role atau ke login
+  if (pathname === '/') {
+    if (token) {
+      const redirectUrl = token.role === 'admin' ? '/beranda' : '/transaksi'
+      return NextResponse.redirect(new URL(redirectUrl, request.url))
+    } else {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+  }
+
+  // Redirect to login if not authenticated
   if (!token) {
     const loginUrl = new URL('/login', request.url)
     loginUrl.searchParams.set('callbackUrl', pathname)
     return NextResponse.redirect(loginUrl)
   }
 
+  // Check admin-only routes
   const isAdminRoute = adminRoutes.some((route) => pathname.startsWith(route))
   if (isAdminRoute && token.role !== 'admin') {
+    // Redirect petugas ke halaman transaksi
     return NextResponse.redirect(new URL('/transaksi', request.url))
   }
 
+  // Check if route is protected
   const isProtectedRoute = protectedRoutes.some((route) =>
     pathname.startsWith(route)
   )
   
-  if (!isProtectedRoute && !isAdminRoute && pathname !== '/') {
+  // Allow access to protected routes if authenticated
+  if (isProtectedRoute || isAdminRoute) {
     return NextResponse.next()
   }
 
-  if (pathname === '/') {
-    const redirectUrl = token.role === 'admin' ? '/beranda' : '/transaksi'
-    return NextResponse.redirect(new URL(redirectUrl, request.url))
-  }
-
+  // For other routes, allow access
   return NextResponse.next()
 }
 
@@ -68,7 +83,7 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - public folder
+     * - files with extensions (images, etc)
      */
     '/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)',
   ],
