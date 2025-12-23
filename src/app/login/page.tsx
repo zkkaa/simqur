@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { signIn } from 'next-auth/react'
+import { signIn, useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -11,8 +11,8 @@ import gsap from 'gsap'
 import Button from '@/components/common/Button'
 import Input from '@/components/common/Input'
 import Toast from '@/components/common/Toast'
-import InfoCard from '@/components/common/InfoCard'
 import Logo from '@/components/common/Logo'
+import SplashScreen from '@/components/SplashScreen'
 import { SignIn, Eye, EyeSlash, Key, LockKey } from '@phosphor-icons/react'
 
 // Validation schema
@@ -27,9 +27,12 @@ export default function LoginPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const callbackUrl = searchParams.get('callbackUrl') || '/'
+  const { status } = useSession()
 
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [showSplash, setShowSplash] = useState(true)
+  const [showLogin, setShowLogin] = useState(false)
   const [toast, setToast] = useState<{
     isOpen: boolean
     title: string
@@ -52,22 +55,43 @@ export default function LoginPage() {
     resolver: zodResolver(loginSchema),
   })
 
-  // GSAP Entrance Animation
+  // Check if user is already authenticated
   useEffect(() => {
-    if (containerRef.current && cardRef.current) {
-      gsap.fromTo(
-        containerRef.current,
-        { opacity: 0 },
-        { opacity: 1, duration: 0.5 }
-      )
-
-      gsap.fromTo(
-        cardRef.current,
-        { y: 50, opacity: 0, scale: 0.9 },
-        { y: 0, opacity: 1, scale: 1, duration: 0.6, ease: 'back.out(1.7)', delay: 0.2 }
-      )
+    if (status === 'authenticated') {
+      setShowSplash(false)
+      setShowLogin(false)
     }
-  }, [])
+  }, [status])
+
+  // Handle splash complete
+  const handleSplashComplete = () => {
+    setShowSplash(false)
+    
+    // Animate login form entrance
+    setTimeout(() => {
+      setShowLogin(true)
+      
+      if (containerRef.current && cardRef.current) {
+        gsap.fromTo(
+          containerRef.current,
+          { opacity: 0 },
+          { opacity: 1, duration: 0.5 }
+        )
+
+        gsap.fromTo(
+          cardRef.current,
+          { y: 50, opacity: 0, scale: 0.9 },
+          { 
+            y: 0, 
+            opacity: 1, 
+            scale: 1, 
+            duration: 0.6, 
+            ease: 'back.out(1.7)' 
+          }
+        )
+      }
+    }, 100)
+  }
 
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true)
@@ -110,6 +134,21 @@ export default function LoginPage() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  // Show splash screen
+  if (showSplash) {
+    return <SplashScreen onComplete={handleSplashComplete} />
+  }
+
+  // Don't show login if authenticated
+  if (status === 'authenticated') {
+    return null
+  }
+
+  // Show login form
+  if (!showLogin) {
+    return null
   }
 
   return (
@@ -155,31 +194,24 @@ export default function LoginPage() {
       {/* Mobile-First Container: max-w-sm (384px) */}
       <div className="w-full max-w-sm relative z-10">
         {/* Card */}
-        <div ref={cardRef} className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 space-y-6 border border-white/20">
+        <div 
+          ref={cardRef} 
+          className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 space-y-6 border border-white/20"
+        >
           {/* Logo */}
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            transition={{ delay: 0.5, type: 'spring', stiffness: 200 }}
+            transition={{ delay: 0.3, type: 'spring', stiffness: 200 }}
           >
             <Logo size="lg" />
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
-          >
-            <p className="text-center text-sm text-gray-600">
-              Sistem Manajemen Qurban
-            </p>
           </motion.div>
 
           {/* Login Form */}
           <motion.form
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8 }}
+            transition={{ delay: 0.6 }}
             onSubmit={handleSubmit(onSubmit)}
             className="space-y-4"
           >
@@ -240,7 +272,7 @@ export default function LoginPage() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1 }}
+            transition={{ delay: 0.8 }}
             className="pt-4 border-t border-gray-100"
           >
             <p className="text-xs text-center text-gray-500">
@@ -253,10 +285,10 @@ export default function LoginPage() {
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1.4 }}
-          className="text-center text-xs text-gray-400 mt-6"
+          transition={{ delay: 1 }}
+          className=" text-center text-xs text-gray-400 mt-6"
         >
-          SIMQUR v1.0.0 • Desa Sambong Sawah
+          Copyright © 2025 Muhammad Azka
         </motion.p>
       </div>
     </div>

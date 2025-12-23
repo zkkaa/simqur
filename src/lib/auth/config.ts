@@ -43,6 +43,7 @@ export const authOptions: NextAuthOptions = {
           id: user.id,
           email: user.email,
           name: user.namaLengkap,
+          namaLengkap: user.namaLengkap,
           role: user.role,
           noTelp: user.noTelp,
         }
@@ -55,6 +56,7 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id
         token.email = user.email
         token.name = user.name
+        token.namaLengkap = user.namaLengkap
         token.role = user.role
         token.noTelp = user.noTelp
       }
@@ -65,6 +67,7 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id
         session.user.email = token.email
         session.user.name = token.name
+        session.user.namaLengkap = token.namaLengkap
         session.user.role = token.role
         session.user.noTelp = token.noTelp
       }
@@ -76,6 +79,29 @@ export const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: 'jwt',
+    // Session akan expire dalam 24 jam (86400 detik)
+    maxAge: 24 * 60 * 60, // 24 hours in seconds
+    
+    // Update session age setiap kali user aktif (optional)
+    // Jika ingin session refresh otomatis saat user aktif, set ke waktu yang lebih pendek
+    updateAge: 0, // Disable auto update, session tetap 24 jam dari login
+  },
+  jwt: {
+    // JWT akan expire dalam 24 jam
+    maxAge: 24 * 60 * 60, // 24 hours in seconds
+  },
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        // Cookie akan expire dalam 24 jam
+        maxAge: 24 * 60 * 60, // 24 hours in seconds
+      },
+    },
   },
   secret: process.env.NEXTAUTH_SECRET,
 }
