@@ -2,16 +2,16 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useAuth } from '@/lib/hooks/use-auth'
 import { usePengaturan, useUpdateTarget, useBackupData } from '@/lib/hooks/use-pengaturan'
 import { LoadingPage } from '@/components/common/LoadingSpinner'
 import Button from '@/components/common/Button'
-import Input from '@/components/common/Input'
 import Logo from '@/components/common/Logo'
 import Toast from '@/components/common/Toast'
 import InfoCard from '@/components/common/InfoCard'
+import NumericKeypad from '@/components/common/NumericKeypad'
 import {
-  Gear,
   ArrowLeft,
   CurrencyCircleDollar,
   DownloadSimple,
@@ -19,17 +19,7 @@ import {
   Database,
   Info,
 } from '@phosphor-icons/react'
-import { motion } from 'framer-motion'
 import { formatCurrency, formatDate } from '@/lib/utils/format'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-
-const targetSchema = z.object({
-  targetQurban: z.number().min(1000, 'Target minimal Rp 1.000'),
-})
-
-type TargetFormData = z.infer<typeof targetSchema>
 
 export default function PengaturanPage() {
   const router = useRouter()
@@ -39,6 +29,8 @@ export default function PengaturanPage() {
   const backupMutation = useBackupData()
 
   const [showTargetForm, setShowTargetForm] = useState(false)
+  const [targetValue, setTargetValue] = useState(0)
+  const [showKeypad, setShowKeypad] = useState(false)
   const [toast, setToast] = useState<{
     isOpen: boolean
     title: string
@@ -50,18 +42,6 @@ export default function PengaturanPage() {
     variant: 'success',
   })
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<TargetFormData>({
-    resolver: zodResolver(targetSchema),
-    defaultValues: {
-      targetQurban: pengaturan?.targetQurban || 3600000,
-    },
-  })
-
   if (authLoading || isLoading) {
     return <LoadingPage text="Memuat pengaturan..." />
   }
@@ -71,11 +51,43 @@ export default function PengaturanPage() {
     return null
   }
 
-  const handleUpdateTarget = async (data: TargetFormData) => {
+  const handleKeyPress = (key: string) => {
+    const currentStr = targetValue.toString()
+
+    if (key === '000') {
+      if (targetValue > 0) setTargetValue(targetValue * 1000)
+    } else {
+      const newValue = currentStr === '0' ? key : currentStr + key
+      if (parseInt(newValue) <= 100000000) {
+        setTargetValue(parseInt(newValue))
+      }
+    }
+  }
+
+  const handleDelete = () => {
+    const str = targetValue.toString()
+    if (str.length <= 1) {
+      setTargetValue(0)
+    } else {
+      setTargetValue(parseInt(str.slice(0, -1)))
+    }
+  }
+
+  const handleUpdateTarget = async () => {
+    if (targetValue < 1000) {
+      setToast({
+        isOpen: true,
+        title: 'Validasi Gagal',
+        message: 'Target minimal Rp 1.000',
+        variant: 'error',
+      })
+      return
+    }
+
     try {
-      await updateTargetMutation.mutateAsync(data.targetQurban)
+      await updateTargetMutation.mutateAsync(targetValue)
       setShowTargetForm(false)
-      reset({ targetQurban: data.targetQurban })
+      setShowKeypad(false)
       setToast({
         isOpen: true,
         title: 'Berhasil',
@@ -109,6 +121,17 @@ export default function PengaturanPage() {
         variant: 'error',
       })
     }
+  }
+
+  const handleShowForm = () => {
+    setTargetValue(pengaturan?.targetQurban || 3600000)
+    setShowTargetForm(true)
+  }
+
+  const handleCancelForm = () => {
+    setShowTargetForm(false)
+    setShowKeypad(false)
+    setTargetValue(0)
   }
 
   return (
@@ -182,51 +205,84 @@ export default function PengaturanPage() {
                 <Button
                   variant="primary"
                   fullWidth
-                  onClick={() => setShowTargetForm(true)}
+                  onClick={handleShowForm}
                 >
                   Ubah Target
                 </Button>
               </>
             ) : (
-              <form onSubmit={handleSubmit(handleUpdateTarget)} className="space-y-4">
-                <Input
-                  {...register('targetQurban', { valueAsNumber: true })}
-                  type="number"
-                  label="Target Baru"
-                  placeholder="3600000"
-                  error={errors.targetQurban?.message}
-                  leftIcon={
-                    <CurrencyCircleDollar
-                      weight="duotone"
-                      className="w-5 h-5"
-                    />
-                  }
-                  required
-                />
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    Target Baru <span className="text-error">*</span>
+                  </label>
+                  <div
+                    onClick={() => setShowKeypad(true)}
+                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus-within:border-primary-500 bg-white cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-500">Rp</span>
+                      <span className="text-xl font-bold text-gray-900">
+                        {targetValue.toLocaleString('id-ID')}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <AnimatePresence>
+                  {showKeypad && (
+                    <motion.div
+                      initial={{ y: 400 }}
+                      animate={{ y: 0 }}
+                      exit={{ y: 400 }}
+                      transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+                      className="fixed bottom-0 left-0 right-0 z-[70] max-w-sm mx-auto"
+                    >
+                      <div className="bg-white p-3 flex justify-between items-center border-t border-gray-200 shadow-lg">
+                        <button
+                          onClick={() => setTargetValue(0)}
+                          className="text-red-600 font-bold px-4 py-2 hover:bg-red-50 rounded-lg transition-colors"
+                        >
+                          Clear
+                        </button>
+                        <button
+                          onClick={() => setShowKeypad(false)}
+                          className="text-primary-600 font-bold px-4 py-2 hover:bg-primary-50 rounded-lg transition-colors"
+                        >
+                          Selesai
+                        </button>
+                      </div>
+                      <NumericKeypad
+                        onPress={handleKeyPress}
+                        onDelete={handleDelete}
+                        onClear={() => setTargetValue(0)}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
                 <div className="flex gap-3">
                   <Button
                     type="button"
                     variant="secondary"
                     fullWidth
-                    onClick={() => {
-                      setShowTargetForm(false)
-                      reset({ targetQurban: pengaturan?.targetQurban || 3600000 })
-                    }}
+                    onClick={handleCancelForm}
                   >
                     Batal
                   </Button>
                   <Button
-                    type="submit"
+                    type="button"
                     variant="primary"
                     fullWidth
+                    onClick={handleUpdateTarget}
                     isLoading={updateTargetMutation.isPending}
+                    disabled={targetValue < 1000}
                     leftIcon={<CheckCircle weight="bold" className="w-5 h-5" />}
                   >
                     Simpan
                   </Button>
                 </div>
-              </form>
+              </div>
             )}
           </motion.div>
 

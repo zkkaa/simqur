@@ -1,18 +1,25 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { useAuth } from '@/lib/hooks/use-auth'
-import { useTransaksi, useCreateTransaksi } from '@/lib/hooks/use-transaksi'
+import {
+  useTransaksi,
+  useCreateTransaksi,
+  useUpdateTransaksi,
+  useDeleteTransaksi,
+} from '@/lib/hooks/use-transaksi'
 import { LoadingPage } from '@/components/common/LoadingSpinner'
 import Button from '@/components/common/Button'
 import CurrencyInput from '@/components/common/CurrencyInput'
 import Toast from '@/components/common/Toast'
 import Logo from '@/components/common/Logo'
 import BottomNav from '@/components/layouts/BottomNav'
+import Pagination from '@/components/common/Pagination'
 import PenabungAutocomplete from '@/components/transaksi/PenabungAutocomplete'
 import NumericKeypad from '@/components/common/NumericKeypad'
 import TransaksiConfirmModal from '@/components/transaksi/TransaksiConfirmModal'
+import TransaksiActionModal from '@/components/transaksi/TransaksiActionModal'
 import {
   CurrencyCircleDollar,
   Money,
@@ -25,6 +32,8 @@ import { formatCurrency, formatDateWithDay, formatTime } from '@/lib/utils/forma
 import { getIndonesiaDate } from '@/lib/utils/timezone'
 import type { Penabung } from '@/types/database'
 
+const ITEMS_PER_PAGE = 5
+
 export default function TransaksiPage() {
   const { user, isLoading: authLoading } = useAuth()
   const [selectedPenabung, setSelectedPenabung] = useState<Penabung | null>(null)
@@ -32,6 +41,9 @@ export default function TransaksiPage() {
   const [metodeBayar, setMetodeBayar] = useState<'tunai' | 'transfer'>('tunai')
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [isKeypadOpen, setIsKeypadOpen] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [selectedTransaksi, setSelectedTransaksi] = useState<any>(null)
+  const [showActionModal, setShowActionModal] = useState(false)
   const [toast, setToast] = useState<{
     isOpen: boolean
     title: string
@@ -46,6 +58,19 @@ export default function TransaksiPage() {
   const today = getIndonesiaDate()
   const { data: transaksiList } = useTransaksi(today)
   const createMutation = useCreateTransaksi()
+  const updateMutation = useUpdateTransaksi()
+  const deleteMutation = useDeleteTransaksi()
+
+  const { paginatedData, totalPages } = useMemo(() => {
+    if (!transaksiList) return { paginatedData: [], totalPages: 0 }
+    
+    const total = Math.ceil(transaksiList.length / ITEMS_PER_PAGE)
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+    const endIndex = startIndex + ITEMS_PER_PAGE
+    const paginated = transaksiList.slice(startIndex, endIndex)
+    
+    return { paginatedData: paginated, totalPages: total }
+  }, [transaksiList, currentPage])
 
   if (authLoading) {
     return <LoadingPage text="Memuat..." />
@@ -54,7 +79,6 @@ export default function TransaksiPage() {
   const quickAmounts = [10000, 20000, 50000, 100000]
 
   const handleSubmit = () => {
-    // Validation
     if (!selectedPenabung) {
       setToast({
         isOpen: true,
@@ -126,6 +150,63 @@ export default function TransaksiPage() {
         isOpen: true,
         title: 'Gagal',
         message: error.message || 'Gagal menyimpan transaksi',
+        variant: 'error',
+      })
+    }
+  }
+
+  const handleTransaksiClick = (item: any) => {
+    setSelectedTransaksi(item)
+    setShowActionModal(true)
+  }
+
+  const handleEditTransaksi = async (data: {
+    nominal: number
+    metodeBayar: 'tunai' | 'transfer'
+  }) => {
+    if (!selectedTransaksi) return
+
+    try {
+      await updateMutation.mutateAsync({
+        id: selectedTransaksi.id,
+        ...data,
+      })
+      setShowActionModal(false)
+      setSelectedTransaksi(null)
+      setToast({
+        isOpen: true,
+        title: 'Berhasil',
+        message: 'Transaksi berhasil diupdate',
+        variant: 'success',
+      })
+    } catch (error: any) {
+      setToast({
+        isOpen: true,
+        title: 'Gagal',
+        message: error.message || 'Gagal mengupdate transaksi',
+        variant: 'error',
+      })
+    }
+  }
+
+  const handleDeleteTransaksi = async () => {
+    if (!selectedTransaksi) return
+
+    try {
+      await deleteMutation.mutateAsync(selectedTransaksi.id)
+      setShowActionModal(false)
+      setSelectedTransaksi(null)
+      setToast({
+        isOpen: true,
+        title: 'Berhasil',
+        message: 'Transaksi berhasil dihapus',
+        variant: 'success',
+      })
+    } catch (error: any) {
+      setToast({
+        isOpen: true,
+        title: 'Gagal',
+        message: error.message || 'Gagal menghapus transaksi',
         variant: 'error',
       })
     }
@@ -212,10 +293,16 @@ export default function TransaksiPage() {
                   exit={{ y: 300 }}
                   className="fixed bottom-0 left-0 right-0 z-[60] max-w-sm mx-auto"
                 >
-                  <div className="bg-white p-2 flex justify-end border-t border-gray-100">
+                  <div className="bg-white p-3 flex justify-between items-center border-t border-gray-100">
+                    <button
+                      onClick={() => setNominal(0)}
+                      className="text-red-600 font-bold px-4 py-2 hover:bg-red-50 rounded-lg transition-colors"
+                    >
+                      Clear
+                    </button>
                     <button
                       onClick={() => setIsKeypadOpen(false)}
-                      className="text-primary-600 font-bold p-2"
+                      className="text-primary-600 font-bold px-4 py-2 hover:bg-primary-50 rounded-lg transition-colors"
                     >
                       Selesai
                     </button>
@@ -326,30 +413,44 @@ export default function TransaksiPage() {
               <h3 className="text-sm font-semibold text-gray-700 px-1">
                 Transaksi Hari Ini ({transaksiList.length})
               </h3>
-              {transaksiList.slice(0, 5).map((item, index) => (
-                <div
-                  key={item.id}
-                  className="bg-white rounded-xl p-4 shadow-md border border-gray-100"
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="font-semibold text-gray-900">
-                      {item.penabung.nama}
-                    </p>
-                    <p className="font-bold text-primary-600">
-                      {formatCurrency(parseFloat(item.nominal))}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-4 text-xs text-gray-500">
-                    <span className="flex items-center gap-1">
-                      <Clock weight="duotone" className="w-4 h-4" />
-                      {formatTime(item.createdAt)}
-                    </span>
-                    <span className="px-2 py-0.5 bg-gray-100 rounded-full">
-                      {item.metodeBayar === 'tunai' ? 'Tunai' : 'Transfer'}
-                    </span>
-                  </div>
-                </div>
-              ))}
+              
+              <div className="space-y-3">
+                {paginatedData.map((item, index) => (
+                  <button
+                    key={item.id}
+                    onClick={() => handleTransaksiClick(item)}
+                    className="w-full bg-white rounded-xl p-4 shadow-md border border-gray-100 hover:shadow-lg hover:border-primary-200 transition-all text-left"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="font-semibold text-gray-900">
+                        {item.penabung.nama}
+                      </p>
+                      <p className="font-bold text-primary-600">
+                        {formatCurrency(parseFloat(item.nominal))}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-4 text-xs text-gray-500">
+                      <span className="flex items-center gap-1">
+                        <Clock weight="duotone" className="w-4 h-4" />
+                        {formatTime(item.createdAt)}
+                      </span>
+                      <span className="px-2 py-0.5 bg-gray-100 rounded-full">
+                        {item.metodeBayar === 'tunai' ? 'Tunai' : 'Transfer'}
+                      </span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              {totalPages > 1 && (
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  totalItems={transaksiList.length}
+                  onPageChange={setCurrentPage}
+                  itemsPerPage={ITEMS_PER_PAGE}
+                />
+              )}
             </motion.div>
           )}
         </div>
@@ -369,6 +470,21 @@ export default function TransaksiPage() {
         />
       )}
 
+      {selectedTransaksi && (
+        <TransaksiActionModal
+          isOpen={showActionModal}
+          onClose={() => {
+            setShowActionModal(false)
+            setSelectedTransaksi(null)
+          }}
+          onEdit={handleEditTransaksi}
+          onDelete={handleDeleteTransaksi}
+          transaksi={selectedTransaksi}
+          canDelete={user?.role === 'admin'}
+          isLoading={updateMutation.isPending || deleteMutation.isPending}
+        />
+      )}
+      
       <BottomNav />
     </div>
   )

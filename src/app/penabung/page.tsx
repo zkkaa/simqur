@@ -2,12 +2,7 @@
 
 import { useState } from 'react'
 import { useAuth } from '@/lib/hooks/use-auth'
-import {
-  usePenabung,
-  useCreatePenabung,
-  useUpdatePenabung,
-  useDeletePenabung,
-} from '@/lib/hooks/use-penabung'
+import { usePenabung, useCreatePenabung } from '@/lib/hooks/use-penabung'
 import { LoadingPage } from '@/components/common/LoadingSpinner'
 import SearchInput from '@/components/common/SearchInput'
 import Button from '@/components/common/Button'
@@ -17,29 +12,14 @@ import Toast from '@/components/common/Toast'
 import BottomNav from '@/components/layouts/BottomNav'
 import PenabungCard from '@/components/penabung/PenabungCard'
 import PenabungFormModal from '@/components/penabung/PenabungFormModal'
-import DeletePenabungModal from '@/components/penabung/DeletePenabungModal'
-import { Users, Plus, FunnelSimple } from '@phosphor-icons/react'
+import { Users, Plus } from '@phosphor-icons/react'
 import { motion, AnimatePresence } from 'framer-motion'
-import type { Penabung } from '@/types/database'
 
 export default function PenabungPage() {
   const { user, isLoading: authLoading } = useAuth()
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState<'all' | 'lunas' | 'belum-lunas'>('all')
-  const [formModal, setFormModal] = useState<{
-    isOpen: boolean
-    mode: 'create' | 'edit'
-    data?: Penabung
-  }>({
-    isOpen: false,
-    mode: 'create',
-  })
-  const [deleteModal, setDeleteModal] = useState<{
-    isOpen: boolean
-    data?: Penabung
-  }>({
-    isOpen: false,
-  })
+  const [formModal, setFormModal] = useState(false)
   const [toast, setToast] = useState<{
     isOpen: boolean
     title: string
@@ -53,8 +33,6 @@ export default function PenabungPage() {
 
   const { data: penabungList, isLoading, error } = usePenabung(search, filter)
   const createMutation = useCreatePenabung()
-  const updateMutation = useUpdatePenabung()
-  const deleteMutation = useDeletePenabung()
 
   if (authLoading) {
     return <LoadingPage text="Memuat..." />
@@ -63,7 +41,7 @@ export default function PenabungPage() {
   const handleCreate = async (data: { nama: string }) => {
     try {
       await createMutation.mutateAsync(data)
-      setFormModal({ isOpen: false, mode: 'create' })
+      setFormModal(false)
       setToast({
         isOpen: true,
         title: 'Berhasil',
@@ -75,53 +53,6 @@ export default function PenabungPage() {
         isOpen: true,
         title: 'Gagal',
         message: error.message || 'Gagal menambah penabung',
-        variant: 'error',
-      })
-    }
-  }
-
-  const handleUpdate = async (data: { nama: string }) => {
-    if (!formModal.data) return
-
-    try {
-      await updateMutation.mutateAsync({
-        id: formModal.data.id,
-        nama: data.nama,
-      })
-      setFormModal({ isOpen: false, mode: 'create' })
-      setToast({
-        isOpen: true,
-        title: 'Berhasil',
-        message: 'Data penabung berhasil diubah',
-        variant: 'success',
-      })
-    } catch (error: any) {
-      setToast({
-        isOpen: true,
-        title: 'Gagal',
-        message: error.message || 'Gagal mengubah data penabung',
-        variant: 'error',
-      })
-    }
-  }
-
-  const handleDelete = async () => {
-    if (!deleteModal.data) return
-
-    try {
-      await deleteMutation.mutateAsync(deleteModal.data.id)
-      setDeleteModal({ isOpen: false })
-      setToast({
-        isOpen: true,
-        title: 'Berhasil',
-        message: 'Penabung berhasil dihapus',
-        variant: 'success',
-      })
-    } catch (error: any) {
-      setToast({
-        isOpen: true,
-        title: 'Gagal',
-        message: error.message || 'Gagal menghapus penabung',
         variant: 'error',
       })
     }
@@ -208,9 +139,7 @@ export default function PenabungPage() {
             <Button
               variant="primary"
               fullWidth
-              onClick={() =>
-                setFormModal({ isOpen: true, mode: 'create' })
-              }
+              onClick={() => setFormModal(true)}
               leftIcon={<Plus weight="bold" className="w-5 h-5" />}
             >
               Tambah Penabung
@@ -242,19 +171,6 @@ export default function PenabungPage() {
                   key={item.id}
                   penabung={item}
                   delay={index * 0.05}
-                  onEdit={() =>
-                    setFormModal({
-                      isOpen: true,
-                      mode: 'edit',
-                      data: item,
-                    })
-                  }
-                  onDelete={() =>
-                    setDeleteModal({
-                      isOpen: true,
-                      data: item,
-                    })
-                  }
                 />
               ))}
             </AnimatePresence>
@@ -263,22 +179,11 @@ export default function PenabungPage() {
       </div>
 
       <PenabungFormModal
-        isOpen={formModal.isOpen}
-        onClose={() => setFormModal({ isOpen: false, mode: 'create' })}
-        onSubmit={formModal.mode === 'create' ? handleCreate : handleUpdate}
-        isLoading={
-          createMutation.isPending || updateMutation.isPending
-        }
-        mode={formModal.mode}
-        initialData={formModal.data ? { nama: formModal.data.nama } : undefined}
-      />
-
-      <DeletePenabungModal
-        isOpen={deleteModal.isOpen}
-        onClose={() => setDeleteModal({ isOpen: false })}
-        onConfirm={handleDelete}
-        penabungName={deleteModal.data?.nama || ''}
-        isLoading={deleteMutation.isPending}
+        isOpen={formModal}
+        onClose={() => setFormModal(false)}
+        onSubmit={handleCreate}
+        isLoading={createMutation.isPending}
+        mode="create"
       />
 
       <BottomNav />
