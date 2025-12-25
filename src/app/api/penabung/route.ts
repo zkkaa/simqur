@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth/config'
 import { db, penabung } from '@/lib/db'
-import { eq, isNull, like, or } from 'drizzle-orm'
+import { eq, like } from 'drizzle-orm'
 import { logActivity, getClientIp } from '@/lib/utils/activity-logger'
 
 export const dynamic = 'force-dynamic'
@@ -22,7 +22,6 @@ export async function GET(request: NextRequest) {
     let query = db
       .select()
       .from(penabung)
-      .where(isNull(penabung.deletedAt))
       .$dynamic()
 
     if (search) {

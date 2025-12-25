@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '@/lib/hooks/use-auth'
 import { usePenabungById, useUpdatePenabung, useDeletePenabung } from '@/lib/hooks/use-penabung'
-import { useTransaksi } from '@/lib/hooks/use-transaksi'
+import { useTransaksi, useUpdateTransaksi, useDeleteTransaksi } from '@/lib/hooks/use-transaksi'
 import { LoadingPage } from '@/components/common/LoadingSpinner'
 import Button from '@/components/common/Button'
 import Logo from '@/components/common/Logo'
@@ -14,6 +14,7 @@ import InfoCard from '@/components/common/InfoCard'
 import Pagination from '@/components/common/Pagination'
 import PenabungFormModal from '@/components/penabung/PenabungFormModal'
 import DeletePenabungModal from '@/components/penabung/DeletePenabungModal'
+import TransaksiActionModal from '@/components/transaksi/TransaksiActionModal'
 import {
   ArrowLeft,
   User,
@@ -40,12 +41,16 @@ export default function PenabungDetailPage() {
   const { user, isLoading: authLoading } = useAuth()
   const { data: penabung, isLoading: penabungLoading } = usePenabungById(penabungId)
   const { data: transaksiList, isLoading: transaksiLoading } = useTransaksi(undefined, penabungId)
-  const updateMutation = useUpdatePenabung()
-  const deleteMutation = useDeletePenabung()
+  const updatePenabungMutation = useUpdatePenabung()
+  const deletePenabungMutation = useDeletePenabung()
+  const updateTransaksiMutation = useUpdateTransaksi()
+  const deleteTransaksiMutation = useDeleteTransaksi()
 
   const [currentPage, setCurrentPage] = useState(1)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [selectedTransaksi, setSelectedTransaksi] = useState<any>(null)
+  const [showTransaksiModal, setShowTransaksiModal] = useState(false)
   const [toast, setToast] = useState<{
     isOpen: boolean
     title: string
@@ -57,7 +62,6 @@ export default function PenabungDetailPage() {
     variant: 'success',
   })
 
-  // Pagination logic
   const { paginatedData, totalPages } = useMemo(() => {
     if (!transaksiList) return { paginatedData: [], totalPages: 0 }
     
@@ -86,9 +90,9 @@ export default function PenabungDetailPage() {
     )
   }
 
-  const handleUpdate = async (data: { nama: string }) => {
+  const handleUpdatePenabung = async (data: { nama: string }) => {
     try {
-      await updateMutation.mutateAsync({
+      await updatePenabungMutation.mutateAsync({
         id: penabungId,
         nama: data.nama,
       })
@@ -109,24 +113,81 @@ export default function PenabungDetailPage() {
     }
   }
 
-  const handleDelete = async () => {
+  const handleDeletePenabung = async () => {
     try {
-      await deleteMutation.mutateAsync(penabungId)
+      await deletePenabungMutation.mutateAsync(penabungId)
       setShowDeleteModal(false)
       setToast({
         isOpen: true,
         title: 'Berhasil',
-        message: 'Penabung berhasil dihapus',
+        message: `Penabung dan ${totalTransaksi} transaksi berhasil dihapus`,
         variant: 'success',
       })
       setTimeout(() => {
         router.push('/penabung')
-      }, 1000)
+      }, 1500)
     } catch (error: any) {
       setToast({
         isOpen: true,
         title: 'Gagal',
         message: error.message || 'Gagal menghapus penabung',
+        variant: 'error',
+      })
+    }
+  }
+
+  const handleTransaksiClick = (item: any) => {
+    setSelectedTransaksi(item)
+    setShowTransaksiModal(true)
+  }
+
+  const handleEditTransaksi = async (data: {
+    nominal: number
+    metodeBayar: 'tunai' | 'transfer'
+  }) => {
+    if (!selectedTransaksi) return
+
+    try {
+      await updateTransaksiMutation.mutateAsync({
+        id: selectedTransaksi.id,
+        ...data,
+      })
+      setShowTransaksiModal(false)
+      setSelectedTransaksi(null)
+      setToast({
+        isOpen: true,
+        title: 'Berhasil',
+        message: 'Transaksi berhasil diupdate',
+        variant: 'success',
+      })
+    } catch (error: any) {
+      setToast({
+        isOpen: true,
+        title: 'Gagal',
+        message: error.message || 'Gagal mengupdate transaksi',
+        variant: 'error',
+      })
+    }
+  }
+
+  const handleDeleteTransaksi = async () => {
+    if (!selectedTransaksi) return
+
+    try {
+      await deleteTransaksiMutation.mutateAsync(selectedTransaksi.id)
+      setShowTransaksiModal(false)
+      setSelectedTransaksi(null)
+      setToast({
+        isOpen: true,
+        title: 'Berhasil',
+        message: 'Transaksi berhasil dihapus',
+        variant: 'success',
+      })
+    } catch (error: any) {
+      setToast({
+        isOpen: true,
+        title: 'Gagal',
+        message: error.message || 'Gagal menghapus transaksi',
         variant: 'error',
       })
     }
@@ -146,7 +207,6 @@ export default function PenabungDetailPage() {
       />
 
       <div className="max-w-sm mx-auto">
-        {/* Header */}
         <div className="bg-gradient-to-br from-primary-600 to-primary-700 px-4 pt-8 pb-20 rounded-b-3xl shadow-lg relative">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -163,7 +223,6 @@ export default function PenabungDetailPage() {
             <Logo size="md" showText={false} />
           </motion.div>
 
-          {/* Avatar & Name */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -176,9 +235,7 @@ export default function PenabungDetailPage() {
           </motion.div>
         </div>
 
-        {/* Content */}
         <div className="px-4 mt-16 space-y-4">
-          {/* Info Card */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -245,20 +302,17 @@ export default function PenabungDetailPage() {
               >
                 Edit
               </Button>
-              {user?.role === 'admin' && (
-                <Button
-                  variant="danger"
-                  fullWidth
-                  onClick={() => setShowDeleteModal(true)}
-                  leftIcon={<Trash weight="bold" className="w-5 h-5" />}
-                >
-                  Hapus
-                </Button>
-              )}
+              <Button
+                variant="danger"
+                fullWidth
+                onClick={() => setShowDeleteModal(true)}
+                leftIcon={<Trash weight="bold" className="w-5 h-5" />}
+              >
+                Hapus
+              </Button>
             </div>
           </motion.div>
 
-          {/* Riwayat Transaksi */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -282,13 +336,14 @@ export default function PenabungDetailPage() {
                 <div className="space-y-3">
                   <AnimatePresence mode="popLayout">
                     {paginatedData.map((item: any, index: number) => (
-                      <motion.div
+                      <motion.button
                         key={item.id}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
                         transition={{ delay: index * 0.03 }}
-                        className="bg-white rounded-xl p-4 shadow-sm border border-gray-200"
+                        onClick={() => handleTransaksiClick(item)}
+                        className="w-full bg-white rounded-xl p-4 shadow-sm border border-gray-200 hover:shadow-lg hover:border-primary-200 transition-all text-left"
                       >
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2">
@@ -315,7 +370,7 @@ export default function PenabungDetailPage() {
                             {formatTime(item.createdAt)}
                           </span>
                         </div>
-                      </motion.div>
+                      </motion.button>
                     ))}
                   </AnimatePresence>
                 </div>
@@ -335,12 +390,11 @@ export default function PenabungDetailPage() {
         </div>
       </div>
 
-      {/* Modals */}
       <PenabungFormModal
         isOpen={showEditModal}
         onClose={() => setShowEditModal(false)}
-        onSubmit={handleUpdate}
-        isLoading={updateMutation.isPending}
+        onSubmit={handleUpdatePenabung}
+        isLoading={updatePenabungMutation.isPending}
         mode="edit"
         initialData={{ nama: penabung.nama }}
       />
@@ -348,10 +402,27 @@ export default function PenabungDetailPage() {
       <DeletePenabungModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
-        onConfirm={handleDelete}
+        onConfirm={handleDeletePenabung}
         penabungName={penabung.nama}
-        isLoading={deleteMutation.isPending}
+        penabungSaldo={saldo}
+        totalTransaksi={totalTransaksi}
+        isLoading={deletePenabungMutation.isPending}
       />
+
+      {selectedTransaksi && (
+        <TransaksiActionModal
+          isOpen={showTransaksiModal}
+          onClose={() => {
+            setShowTransaksiModal(false)
+            setSelectedTransaksi(null)
+          }}
+          onEdit={handleEditTransaksi}
+          onDelete={handleDeleteTransaksi}
+          transaksi={selectedTransaksi}
+          canDelete={user?.role === 'admin'}
+          isLoading={updateTransaksiMutation.isPending || deleteTransaksiMutation.isPending}
+        />
+      )}
     </div>
   )
 }

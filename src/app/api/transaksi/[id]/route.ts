@@ -4,7 +4,6 @@ import { authOptions } from '@/lib/auth/config'
 import { db, transaksi, penabung } from '@/lib/db'
 import { eq } from 'drizzle-orm'
 import { logActivity, getClientIp } from '@/lib/utils/activity-logger'
-import { getIndonesiaDate } from '@/lib/utils/timezone'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -52,7 +51,7 @@ export async function GET(
   }
 }
 
-// PATCH - Edit transaksi
+// PATCH - Edit transaksi (NO DATE RESTRICTION)
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -102,15 +101,6 @@ export async function PATCH(
 
     if (!oldTransaksi) {
       return NextResponse.json({ error: 'Transaksi not found' }, { status: 404 })
-    }
-
-    // Check if transaksi is from today
-    const today = getIndonesiaDate()
-    if (oldTransaksi.tanggal !== today) {
-      return NextResponse.json(
-        { error: 'Hanya bisa edit transaksi hari ini' },
-        { status: 403 }
-      )
     }
 
     // Get penabung data
@@ -166,7 +156,7 @@ export async function PATCH(
       action: 'update',
       tableName: 'transaksi',
       recordId: params.id,
-      description: `Mengedit transaksi ${penabungData.nama}: ${oldNominal.toLocaleString('id-ID')} → ${newNominal.toLocaleString('id-ID')}`,
+      description: `Mengedit transaksi ${penabungData.nama} (${oldTransaksi.tanggal}): ${oldNominal.toLocaleString('id-ID')} → ${newNominal.toLocaleString('id-ID')}`,
       oldData: oldTransaksi,
       newData: updated,
       ipAddress: getClientIp(request),
@@ -182,7 +172,7 @@ export async function PATCH(
   }
 }
 
-// DELETE transaksi (admin only)
+// DELETE transaksi (NO DATE RESTRICTION - admin only)
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -215,15 +205,6 @@ export async function DELETE(
 
     if (!transaksiData) {
       return NextResponse.json({ error: 'Transaksi not found' }, { status: 404 })
-    }
-
-    // Check if transaksi is from today
-    const today = getIndonesiaDate()
-    if (transaksiData.tanggal !== today) {
-      return NextResponse.json(
-        { error: 'Hanya bisa hapus transaksi hari ini' },
-        { status: 403 }
-      )
     }
 
     // Get penabung data
@@ -270,7 +251,7 @@ export async function DELETE(
       action: 'delete',
       tableName: 'transaksi',
       recordId: params.id,
-      description: `Menghapus transaksi ${penabungData.nama}: ${nominalTransaksi.toLocaleString('id-ID')}`,
+      description: `Menghapus transaksi ${penabungData.nama} (${transaksiData.tanggal}): ${nominalTransaksi.toLocaleString('id-ID')}`,
       oldData: transaksiData,
       ipAddress: getClientIp(request),
     })

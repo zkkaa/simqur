@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth/config'
-import { db, penabung } from '@/lib/db'
+import { db, penabung, transaksi } from '@/lib/db'
 import { eq } from 'drizzle-orm'
 import { logActivity, getClientIp } from '@/lib/utils/activity-logger'
 
@@ -123,39 +123,60 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    if (session.user.role !== 'admin') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
-
-    const [oldData] = await db
+    // Get penabung data for logging
+    const [penabungData] = await db
       .select()
       .from(penabung)
       .where(eq(penabung.id, params.id))
       .limit(1)
 
-    if (!oldData) {
+    if (!penabungData) {
       return NextResponse.json({ error: 'Penabung not found' }, { status: 404 })
     }
 
+    // Get transaction count for logging
+    const transaksiList = await db
+      .select()
+      .from(transaksi)
+      .where(eq(transaksi.penabungId, params.id))
+
+    const transaksiCount = transaksiList.length
+    const totalNominal = transaksiList.reduce(
+      (sum, t) => sum + parseFloat(t.nominal),
+      0
+    )
+
+    // CASCADE DELETE: Delete all transactions first
     await db
-      .update(penabung)
-      .set({
-        deletedAt: new Date(),
-      })
+      .delete(transaksi)
+      .where(eq(transaksi.penabungId, params.id))
+
+    // Then delete the penabung
+    await db
+      .delete(penabung)
       .where(eq(penabung.id, params.id))
 
+    // Log activity with detailed information
     await logActivity({
       userId: session.user.id,
       userRole: session.user.role,
       action: 'delete',
       tableName: 'penabung',
       recordId: params.id,
-      description: `Menghapus penabung: ${oldData.nama}`,
-      oldData,
+      description: `Menghapus penabung secara permanen: ${penabungData.nama} | Saldo: Rp ${parseFloat(penabungData.totalSaldo).toLocaleString('id-ID')} | ${transaksiCount} transaksi (Total: Rp ${totalNominal.toLocaleString('id-ID')})`,
+      oldData: {
+        penabung: penabungData,
+        deletedTransactions: transaksiCount,
+        totalNominal: totalNominal,
+      },
       ipAddress: getClientIp(request),
     })
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ 
+      success: true,
+      message: 'Penabung dan semua riwayat transaksi berhasil dihapus',
+      deletedTransactions: transaksiCount,
+    })
   } catch (error) {
     console.error('Error deleting penabung:', error)
     return NextResponse.json(
